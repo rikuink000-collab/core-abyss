@@ -682,8 +682,12 @@ async function runTurn(g){
   g.turn++; p.turnsTaken++;
   log(g, `── ターン${g.turn}：${p.name} ──`);
   g.phase = 'core';
-  p.stock += 1; p.orbTotal += 1;
-  log(g, 'コアステップ：新規オーブ+1');
+  if(p.idx === g.first && p.turnsTaken === 1){
+    log(g, 'コアステップ：先攻の最初のターンは新規オーブなし');   // 案B（2026-10-30）／4-1・シナリオ26
+  } else {
+    p.stock += 1; p.orbTotal += 1;
+    log(g, 'コアステップ：新規オーブ+1');
+  }
   checkInv(g); upd(g);
   g.phase = 'draw';
   const n = (p.idx !== g.first && p.turnsTaken === 1) ? 2 : 1;
@@ -1102,7 +1106,7 @@ function render(){
 function renderTitle(){
   return `<div class="title">
     <div class="logo" data-a="logo"><div class="l1">CORE</div><div class="l2">ABYSS</div><div class="kari">（仮タイトル）</div></div>
-    <div class="sub">F3＋バランス変更（2026-10-30）：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
+    <div class="sub">F3＋バランス変更＋案B（2026-10-30）：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
     <button class="btn primary" data-a="start">バトル開始</button>
     <button class="btn" data-a="cards">カード一覧</button>
     <button class="btn" data-a="stats">戦績</button>
