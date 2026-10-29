@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CORE ABYSS">
+<meta name="theme-color" content="#0a0c13">
+<title>CORE ABYSS（仮）</title>
+<style>
+:root{
+  --bg:#0a0c13;--panel:#131826;--panel2:#1a2133;--line:#29324a;--text:#e9ecf4;--muted:#8b94aa;
+  --red:#f0564f;--blue:#4d8dff;--green:#39c97a;--none:#aab1c2;--gold:#f2c14e;--orb:#7fd8ff;--danger:#ff6b6b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%;overscroll-behavior:none;font-size:14px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+#app{max-width:480px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);position:relative;overflow:hidden;
+  background:radial-gradient(120% 60% at 50% 0%,#151b2e 0%,var(--bg) 60%)}
+.c-red{--c:var(--red)}.c-blue{--c:var(--blue)}.c-green{--c:var(--green)}.c-none{--c:var(--none)}
+
+/* ---------- title ---------- */
+.title{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px}
+.logo{text-align:center;user-select:none;margin-bottom:18px}
+.logo .l1{font-size:56px;font-weight:900;letter-spacing:.18em;line-height:1;
+  background:linear-gradient(180deg,#fff,#7fd8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .l2{font-size:30px;font-weight:800;letter-spacing:.55em;margin-left:.55em;color:#5f6d92;line-height:1.3}
+.logo .kari{font-size:12px;color:var(--muted);letter-spacing:.2em}
+.sub{color:var(--muted);font-size:12px;margin-bottom:10px}
+.btn{display:block;width:100%;max-width:300px;padding:14px;border-radius:12px;background:var(--panel2);
+  border:1px solid var(--line);font-weight:700;font-size:16px;text-align:center}
+.btn.primary{background:linear-gradient(180deg,#2c6df0,#1d4fc0);border-color:#4d8dff}
+.btn.small{padding:9px 12px;font-size:14px;width:auto;display:inline-block}
+.btn:disabled{opacity:.4}
+
+/* ---------- battle ---------- */
+.battle{flex:1;display:flex;flex-direction:column;min-height:0}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:6px 10px;background:var(--panel);
+  border-bottom:1px solid var(--line);font-size:12px}
+.pbar.me{border-top:1px solid var(--line);border-bottom:0}
+.pname{font-weight:800;font-size:13px}
+.turnmark{font-size:10px;background:var(--gold);color:#000;border-radius:4px;padding:1px 4px;margin-left:4px}
+.life{display:flex;gap:3px}
+.lo{width:11px;height:11px;border-radius:50%;border:1px solid #5a2a2a;display:inline-block}
+.lo.on{background:radial-gradient(circle at 35% 35%,#ffb3a8,#e0413a);border-color:#ff8a80}
+.stat{color:var(--muted)}.stat b{color:var(--text);margin-left:3px;font-size:13px}
+.stat b.orbc{color:var(--orb)}
+.chip{font-size:11px;padding:2px 6px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.chip.on{color:var(--text);border-color:var(--c)}
+.field{flex:1;min-height:96px;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px}
+.field.empty::after{content:"（ユニットなし）";color:#3d4660;font-size:12px}
+.unit{position:relative;width:calc((100% - 20px)/5);max-width:78px;height:92px;border-radius:9px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 26%,#141a29),#121726);
+  border:1.5px solid color-mix(in srgb,var(--c) 70%,#000);padding:4px 4px 3px;display:flex;flex-direction:column;
+  justify-content:space-between;overflow:hidden;transition:transform .15s,opacity .15s}
+.unit.tapped{opacity:.55;transform:rotate(-6deg) scale(.94)}
+.unit.atk{box-shadow:0 0 0 2px var(--gold),0 0 14px var(--gold)}
+.unit.blk{box-shadow:0 0 0 2px #fff,0 0 12px #9cc4ff}
+.un{font-size:10px;line-height:1.15;font-weight:700;max-height:2.3em;overflow:hidden}
+.ubp{font-size:17px;font-weight:900;text-align:center;letter-spacing:-.02em}
+.ubp.mod{color:var(--gold)}
+.ulv{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.orbs{color:var(--orb);letter-spacing:-1px;font-size:9px}
+.tapb{position:absolute;top:2px;right:2px;font-size:9px;font-weight:800;color:#1a1200;background:#ffb070;border-radius:4px;padding:0 3px}
+.unit.tapped .un{padding-right:22px}
+.atkbtn{position:absolute;left:3px;right:3px;bottom:3px;background:var(--gold);color:#1a1200;border-radius:6px;
+  font-size:11px;font-weight:900;padding:5px 0}
+.mid{padding:4px 10px;background:#0e121d;border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-height:56px}
+.banner{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:2px;display:flex;justify-content:space-between;gap:6px}
+.banner .win{background:var(--gold);color:#000;border-radius:4px;padding:0 5px;font-size:11px;white-space:nowrap}
+.logs{font-size:11px;color:var(--muted);line-height:1.45}
+.logs div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logs div:last-child{color:var(--text)}
+.hand{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;min-height:118px;background:var(--panel);-webkit-overflow-scrolling:touch}
+.hcard{flex:0 0 76px;height:102px;border-radius:9px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 22%,#151b2b),#111624);
+  border:1.5px solid color-mix(in srgb,var(--c) 55%,#000);padding:5px;display:flex;flex-direction:column;gap:2px;position:relative}
+.hcard.usable{border-color:var(--gold);box-shadow:0 0 10px color-mix(in srgb,var(--gold) 55%,transparent)}
+.hc-cost{font-size:16px;font-weight:900;color:var(--c)}
+.hc-cost small{font-size:11px;color:var(--gold);margin-left:2px}
+.hc-name{font-size:11px;font-weight:700;line-height:1.2}
+.hc-type{font-size:9px;color:var(--muted);margin-top:auto}
+.hc-bp{font-size:11px;font-weight:800}
+.actbar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0e121d;border-top:1px solid var(--line)}
+.phase{flex:1;font-size:12px;color:var(--muted);line-height:1.3}
+.phase b{color:var(--text);font-size:13px;display:block}
+.go{padding:12px 14px;border-radius:10px;background:linear-gradient(180deg,#2c6df0,#1d4fc0);font-weight:800;font-size:14px;white-space:nowrap}
+.go.end{background:linear-gradient(180deg,#d9483f,#a8302a)}
+.mini{padding:9px 10px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font-size:12px;font-weight:700}
+
+/* ---------- modal ---------- */
+.ov{position:absolute;inset:0;background:rgba(3,5,10,.55);display:flex;align-items:flex-end;z-index:20}
+.sheet{width:100%;max-height:72%;overflow-y:auto;background:var(--panel);border-top:1px solid var(--line);
+  border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet.full{max-height:92%}
+.sheet h3{margin:0 0 4px;font-size:17px}
+.sheet .note{color:var(--muted);font-size:12px;margin:0 0 10px;line-height:1.5}
+.row{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);margin-bottom:6px;width:100%;text-align:left}
+.row.ok{border-color:var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent)}
+.row.ng{opacity:.6;padding:6px 10px;margin-bottom:4px}
+.row.ng .nm{font-size:12px}
+.row .nm{flex:1;font-weight:700;font-size:14px}
+.row .nm small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+.row .rs{font-size:11px;color:var(--danger);text-align:right;max-width:46%}
+.row .tag{font-size:12px;font-weight:800;color:var(--gold);white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:0 0 10px}
+.pass{display:block;width:100%;padding:16px;border-radius:12px;background:linear-gradient(180deg,#3a4566,#283150);
+  font-size:18px;font-weight:900;margin-top:10px;border:1px solid #4b5a85}
+.vs{display:flex;gap:8px;margin:8px 0 12px}
+.vs>div{flex:1;background:var(--panel2);border-radius:10px;padding:8px;border:1px solid var(--line);font-size:12px}
+.vs b{display:block;font-size:13px}.vs .big{font-size:20px;font-weight:900}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:8px 0}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.eff{background:var(--panel2);border-radius:10px;padding:10px;font-size:13px;line-height:1.6;margin:8px 0}
+.eff .stage{color:var(--muted);font-size:11px}
+.btns{display:flex;gap:8px;margin-top:10px}.btns>*{flex:1}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:34px;height:34px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:18px;font-weight:800}
+.stepper span{min-width:18px;text-align:center;font-weight:800}
+.warn{color:var(--danger);font-size:11px}
+.logfull{font-size:12px;line-height:1.55;color:#c9cfdd;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all}
+
+/* ---------- pages ---------- */
+.page{flex:1;overflow-y:auto;padding:16px 14px 24px}
+.page h2{margin:4px 0 12px;font-size:20px}
+.page h4{margin:16px 0 8px;font-size:14px;color:var(--c)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ccard{border-radius:10px;padding:8px;min-height:84px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 20%,#151b2b),#111624);
+  border:1.5px solid color-mix(in srgb,var(--c) 55%,#000);display:flex;flex-direction:column;gap:3px;text-align:left}
+.ccard .id{font-size:10px;color:var(--muted)}.ccard .n{font-size:12px;font-weight:800;line-height:1.25}
+.ccard .t{font-size:10px;color:var(--muted);margin-top:auto}
+.res{text-align:center;padding:30px 16px;flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;align-items:center}
+.res .big{font-size:48px;font-weight:900;letter-spacing:.1em}
+.res .big.win{color:var(--gold)}.res .big.lose{color:#7d89a8}
+.card{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;max-width:340px}
+.simf label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.simf input[type=number]{width:110px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px}
+.simf select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:13px}
+.simf input[type=checkbox]{width:22px;height:22px}
+.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.metric b{font-size:15px}
+.metric.hl b{font-size:20px;color:var(--gold)}
+.errl{font-size:11px;color:var(--danger);font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap;margin-top:8px}
+.prov{font-size:10px;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:0 4px;margin-left:4px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- カード定義：統合仕様書v1.1 14章のJSONをそのまま収録（編集禁止） -->
+<script type="application/json" id="cards-json">
+[
+  {"id":"R1","name":"焔牙の子狼","type":"unit","color":"red","cost":2,"reduction":{"red":1},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":2,"bp":3000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"R2","name":"紅蓮の騎士","type":"unit","color":"red","cost":3,"reduction":{"red":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"R3","name":"爆炎のゴブリン","type":"unit","color":"red","cost":3,"reduction":{"red":1},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":2,"bp":3000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"destroy","timing":"on_summon","target":{"owner":"opponent","type":"unit","maxCost":2}},"flashEffect":null,"burst":null},
+  {"id":"R4","name":"烈火のドラゴン","type":"unit","color":"red","cost":6,"reduction":{"red":2},"levels":[{"lv":1,"cores":1,"bp":5000},{"lv":2,"cores":3,"bp":8000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"attack_bp_up","timing":"attack","value":2000},"flashEffect":null,"burst":null},
+  {"id":"R5","name":"炎獄の魔王","type":"unit","color":"red","cost":7,"reduction":{"red":3},"levels":[{"lv":1,"cores":1,"bp":6000},{"lv":2,"cores":4,"bp":10000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"attack_bp_up","timing":"attack","value":2000},"flashEffect":null,"burst":null},
+  {"id":"B1","name":"雫のスライム","type":"unit","color":"blue","cost":2,"reduction":{"blue":1},"levels":[{"lv":1,"cores":1,"bp":1000},{"lv":2,"cores":2,"bp":2000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"draw","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
+  {"id":"B2","name":"潮騒のセイレーン","type":"unit","color":"blue","cost":3,"reduction":{"blue":1},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":2,"bp":3000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"draw","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
+  {"id":"B3","name":"霧隠れの忍者","type":"unit","color":"blue","cost":4,"reduction":{"blue":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":2,"bp":4000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":{"kind":"bounce","timing":"on_summon","target":{"owner":"opponent","type":"unit","maxBp":3000}},"flashEffect":null,"burst":null},
+  {"id":"B4","name":"深海のクラーケン","type":"unit","color":"blue","cost":6,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":4000},{"lv":2,"cores":3,"bp":7000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"bounce","timing":"on_summon","target":{"owner":"opponent","type":"unit","maxBp":4000}},"flashEffect":null,"burst":null},
+  {"id":"B5","name":"蒼玉の賢者","type":"unit","color":"blue","cost":5,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"draw","timing":"on_summon","value":1},"flashEffect":{"kind":"discard_draw","oncePerBattle":true,"discard":1,"value":1},"burst":null},
+  {"id":"G1","name":"芽吹きの精霊","type":"unit","color":"green","cost":2,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":1000},{"lv":2,"cores":2,"bp":2000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
+  {"id":"G2","name":"森守りのトレント","type":"unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":6000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"G3","name":"大樹の古竜","type":"unit","color":"green","cost":7,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":5000},{"lv":2,"cores":4,"bp":9000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":2},"flashEffect":null,"burst":null},
+  {"id":"G4","name":"豊穣の角獣","type":"unit","color":"green","cost":4,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":3,"bp":4000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":1},"flashEffect":{"kind":"self_core_add","oncePerBattle":true,"value":2,"partial":true},"burst":null},
+  {"id":"M1","name":"フレイムバースト","type":"magic","color":"red","cost":3,"reduction":{"red":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"destroy","timing":"on_use","target":{"owner":"opponent","type":"unit","maxBp":4000}},"flashEffect":null,"burst":null},
+  {"id":"M2","name":"タイダルウェーブ","type":"magic","color":"blue","cost":4,"reduction":{"blue":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"bounce","timing":"on_use","target":{"owner":"opponent","type":"unit"}},"flashEffect":null,"burst":null},
+  {"id":"M3","name":"オーブチャージ","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_charge","timing":"on_use","value":2},"flashEffect":null,"burst":null},
+  {"id":"M4","name":"パワーサージ","type":"magic","color":"none","cost":2,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"bp_up","timing":"on_use","value":3000,"duration":"turn","target":{"owner":"self","type":"unit"}},"flashEffect":null,"burst":null},
+  {"id":"M5","name":"氷結の封印","type":"magic","color":"blue","cost":3,"reduction":{"blue":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"exhaust","timing":"on_use","target":{"owner":"opponent","type":"unit","state":"untapped"}},"flashEffect":null,"burst":null},
+  {"id":"M6","name":"命脈の循環","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"core_charge","timing":"on_use","value":2},"flashEffect":null,"burst":null},
+  {"id":"N1","name":"紅蓮の戦場","type":"area","color":"red","cost":3,"reduction":{"red":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"red"},"flashEffect":null,"burst":null},
+  {"id":"N2","name":"静かなる泉","type":"area","color":"blue","cost":3,"reduction":{"blue":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"blue"},"flashEffect":null,"burst":null},
+  {"id":"X1","name":"烈火の反撃","type":"burst","color":"red","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"destroy","target":{"owner":"opponent","type":"unit","maxBp":6000}}}},
+  {"id":"X2","name":"時戻しの渦","type":"burst","color":"blue","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"bounce","target":{"owner":"opponent","type":"unit"}}}},
+  {"id":"X3","name":"森の番人","type":"burst_unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":{"condition":"own_unit_removed_by_opponent_effect","effect":{"kind":"core_charge","value":2},"afterSummon":{"cost":0,"placeCoresFromStock":1,"ifFieldFull":"return_to_hand"}}}
+]
+</script>
+
+<!-- ================= ルールエンジン（DOM非依存） ================= -->
+<script id="engine">
+(function(root){
+'use strict';
+const DEFS = root.CARDS_SOURCE || JSON.parse(document.getElementById('cards-json').textContent);
+const DEF = {}; DEFS.forEach(d => { DEF[d.id] = d; });
+
+// 8章 初期デッキ（36枚）
+const DECK_LIST = [['R1',3],['R2',2],['R3',2],['R4',2],['R5',1],['B1',3],['B2',2],['B3',2],['B4',1],['B5',1],
+  ['G1',3],['G2',1],['G3',1],['G4',1],['M1',1],['M2',1],['M3',1],['M4',2],['M5',1],['M6',1],['N1',1],['X1',1],['X2',1],['X3',1]];
+
+// 仕様に書かれていない箇所の「仮置き」。ここ以外で勝手に決めない。番号は納品時の未決定事項一覧と対応。
+const SETTINGS = {
+  reductionCap: true,            // 決定1：軽減の上限＝カードの reduction 値（正式。false は検証用）
+  attackBpUpDuration: 'battle',  // 決定7：attack_bp_up は「このバトル中」（正式）
+  turnCap: 200,                  // [未決定#9] 自動対戦の安全装置（到達＝エラー終了）
+  flashActionCap: 20             // 5-1 の安全装置（仕様どおり）
+};
+const CJ = {red:'紅',blue:'蒼',green:'翠',none:'無'};
+const TYPEJ = {unit:'ユニット',magic:'マジック',area:'領域',burst:'バースト',burst_unit:'バースト・ユニット'};
+
+class GameOver extends Error { constructor(winner, reason){ super('GameOver'); this.winner = winner; this.reason = reason; } }
+class RuleError extends Error {}
+class FatalError extends Error {}
+
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(g, arr){ for(let i = arr.length - 1; i > 0; i--){ const j = Math.floor(g.rng() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
+
+const isUnitDef = d => d.type === 'unit' || d.type === 'burst_unit';
+const opp = (g, p) => g.players[1 - p.idx];
+function mkCard(g, id){ return {uid: g.uid++, id, def: DEF[id]}; }
+function makeUnit(g, card, p){ return {uid: g.uid++, id: card.id, def: card.def, owner: p.idx, orbs: 0, tapped: false, mods: [], enteredTurn: g.turn}; }
+
+function log(g, m){ g.log.push({t: g.turn, m}); if(g.log.length > g.logLimit) g.log.splice(0, g.log.length - g.logLimit); }
+function err(g, m){ g.errors.push(`T${g.turn}: ${m}`); log(g, '【エラー】' + m); }
+function upd(g){ if(g.onUpdate) g.onUpdate(g); }
+
+// ---------- レベル／BP（4-4） ----------
+function level(u){ let lv = 0; for(const L of u.def.levels) if(u.orbs >= L.cores) lv = L.lv; return lv; }
+function levelAt(def, orbs){ let lv = 0; for(const L of def.levels) if(orbs >= L.cores) lv = L.lv; return lv; }
+function bpAtLevel(def, lv){ const L = def.levels.find(x => x.lv === lv); return L ? L.bp : 0; }
+function levelCores(def, lv){ const L = def.levels.find(x => x.lv === lv); return L ? L.cores : 0; }
+const surplus = u => u.orbs - levelCores(u.def, level(u));     // レベルに寄与していないオーブ
+function baseBp(u){ const lv = level(u); const L = u.def.levels.find(x => x.lv === lv); return L ? L.bp : 0; }
+function bp(g, u){
+  let v = baseBp(u);
+  const owner = g.players[u.owner];
+  const a = owner.area && owner.area.def.effect;
+  if(a && a.kind === 'field_bp_up' && a.targetColor === u.def.color) v += a.value;
+  for(const m of u.mods) v += m.value;
+  return v;
+}
+function findUnit(g, uid){ for(const p of g.players){ const u = p.field.find(x => x.uid === uid); if(u) return u; } return null; }
+
+// ---------- 支払い（4-2） ----------
+function symbols(p, color){
+  let s = 0;
+  for(const u of p.field) if(u.def.color === color) s += (u.def.symbol || 0);   // 疲労していても数える
+  if(p.area && p.area.def.color === color) s += (p.area.def.symbol || 0);
+  return s;
+}
+function reductionOf(p, def){
+  let r = 0;
+  for(const [color, cap] of Object.entries(def.reduction || {})){
+    const s = symbols(p, color);
+    r += SETTINGS.reductionCap ? Math.min(s, cap) : s;
+  }
+  return r;
+}
+function paymentFor(p, def){ return Math.max(1, def.cost - reductionOf(p, def)); }   // 最低1
+const unitOrbs = p => p.field.reduce((s, u) => s + u.orbs, 0);
+const surplusOrbs = p => p.field.reduce((s, u) => s + Math.max(0, surplus(u)), 0);
+
+function doPay(g, p, amount, payFrom){
+  const fromStock = Math.min(p.stock, amount);
+  const rest = amount - fromStock;
+  const plan = [];
+  if(rest > 0){
+    if(!payFrom) throw new RuleError('ストック不足（ユニットからの支払い指定なし）');
+    let sum = 0;
+    for(const [k, n0] of Object.entries(payFrom)){
+      const n = n0 | 0; if(!n) continue;
+      const u = p.field.find(x => String(x.uid) === String(k));
+      if(!u || n < 0 || n > u.orbs) throw new RuleError('ユニットからの支払い指定が不正');
+      sum += n; plan.push([u, n]);
+    }
+    if(sum !== rest) throw new RuleError(`ユニットからの支払い数が不一致（必要${rest}／指定${sum}）`);
+  }
+  p.stock -= fromStock;
+  for(const [u, n] of plan) u.orbs -= n;
+  return {fromStock, plan};
+}
+// 自壊（効果による破壊ではない）
+function selfDestructCheck(g){
+  for(const p of g.players) for(const u of [...p.field]) if(u.orbs <= 0) leaveField(g, u, 'trash', 'self');
+}
+// 場を離れる：上のオーブは持ち主のストックへ（4-4）
+function leaveField(g, u, dest, cause){
+  const p = g.players[u.owner];
+  const i = p.field.indexOf(u); if(i < 0) return false;
+  p.field.splice(i, 1);
+  const back = u.orbs; p.stock += back; u.orbs = 0; u.mods = [];
+  const c = mkCard(g, u.id);
+  if(dest === 'hand') p.hand.push(c); else p.trash.push(c);
+  if(g.battle){
+    if(g.battle.attacker === u.uid) g.battle.attackerGone = true;
+    if(g.battle.blocker === u.uid) g.battle.blockerGone = true;
+  }
+  const why = {self:'自壊', battle:'バトルで破壊', effect: dest === 'hand' ? '手札に戻る' : '効果で破壊'}[cause] || cause;
+  log(g, `${p.name}の${u.def.name}：${why}${back ? `（オーブ${back}→ストック）` : ''}`);
+  return true;
+}
+
+function drawN(g, p, n){
+  for(let i = 0; i < n; i++){
+    if(!p.deck.length){ log(g, `${p.name}はドローできない → 敗北`); throw new GameOver(1 - p.idx, 'deckout'); }
+    p.hand.push(p.deck.pop());
+  }
+}
+function coreMove(g, p, v){ const n = Math.min(v, p.recovery); p.recovery -= n; p.stock += n; log(g, `${p.name}：回収待ち${n}個→ストック`); }
+
+function targetCandidates(g, p, eff){
+  const t = eff && eff.target; if(!t) return null;
+  const side = t.owner === 'opponent' ? opp(g, p) : p;
+  return side.field.filter(u =>
+    (t.maxCost == null || u.def.cost <= t.maxCost) &&
+    (t.maxBp == null || bp(g, u) <= t.maxBp) &&
+    (t.state !== 'untapped' || !u.tapped));
+}
+
+// 使用可否（フラッシュ：対応マジック／迅雷ユニット。バースト＝F3）
+// opts.allowUnits：true（既定）＝ユニット上の全オーブ／'surplus'＝レベルを下げない余剰分のみ（CPU）／false＝ストックのみ
+function checkPlay(g, p, card, timing, target, opts){
+  const pool = (!opts || opts.allowUnits === undefined || opts.allowUnits === true) ? 'all' : (opts.allowUnits === false ? 'none' : opts.allowUnits);
+  const allowUnits = pool !== 'none';
+  const unitPool = pool === 'all' ? unitOrbs(p) : pool === 'surplus' ? surplusOrbs(p) : 0;
+  const d = card.def;
+  const no = reason => ({ok: false, reason});
+  if(d.type === 'burst') return no('バースト専用（セットのみ）');
+  const jinraiFlash = timing === 'flash' && isUnitDef(d) && d.keywords.includes('jinrai');
+  if(!d.useTiming.includes(timing) && !jinraiFlash)
+    return no(timing === 'flash' ? (isUnitDef(d) ? '迅雷なし（フラッシュ召喚不可）' : 'フラッシュでは使えない') : 'メインでは使えない');
+  if(timing === 'flash' && !g.battle) return no('フラッシュ窓の外');
+  if(isUnitDef(d) && p.field.length >= 5) return no('場が満杯（5体）');
+  const pay = paymentFor(p, d);
+  const avail = p.stock + unitPool;
+  if(avail < pay) return no(`オーブ不足（支払い${pay}／ストック${p.stock}${unitPool ? '＋ユニット上' + unitPool : ''}）`);
+  let cands = null;
+  if(d.type === 'magic' && d.effect && d.effect.target){
+    cands = targetCandidates(g, p, d.effect);
+    if(!cands.length) return no('対象なし');
+    if(target != null && !cands.some(u => u.uid === target)) return no('不正な対象');
+  }
+  return {ok: true, pay, needUnits: p.stock < pay, cands};
+}
+
+function applyEffect(g, p, e, t){
+  switch(e.kind){
+    case 'draw': drawN(g, p, e.value); log(g, `${p.name}：${e.value}枚引く`); break;
+    case 'core_boost': case 'core_charge': coreMove(g, p, e.value); break;
+    case 'destroy': if(t.owner !== p.idx) g.pendingB.add(t.owner); leaveField(g, t, 'trash', 'effect'); break;
+    case 'bounce': if(t.owner !== p.idx) g.pendingB.add(t.owner); leaveField(g, t, 'hand', 'effect'); break;
+    case 'exhaust': t.tapped = true; log(g, `${g.players[t.owner].name}の${t.def.name}：疲労`); break;
+    case 'bp_up': t.mods.push({value: e.value, until: e.duration === 'turn' ? 'turn' : 'battle'});
+      log(g, `${t.def.name}：BP+${e.value}（${e.duration === 'turn' ? 'このターン' : 'このバトル'}）→ ${bp(g, t)}`); break;
+    default: throw new FatalError('未対応の効果kind: ' + e.kind);
+  }
+}
+
+// ---------- 自動パス（10章） ----------
+function hasFlashAction(g, p){
+  if(p.hand.some(c => checkPlay(g, p, c, 'flash', null).ok)) return true;
+  return p.field.some(u => u.def.flashEffect && checkFx(g, p, u).ok);
+}
+// 「負けに直結する場面」[新F3#7]：防御側でライフ1、かつこのままだとライフに通る（W1：ブロックできるユニットなし／W2：ブロッカーなし・離脱）
+function lethalSpot(g, p){
+  const b = g.battle; if(!b || p.idx === b.atkOwner || p.life > 1) return false;
+  if(b.window === 'W1') return !p.field.some(x => !x.tapped && x.noBlockBattle !== b.id);
+  if(b.window === 'W2') return !b.blocker || b.blockerGone;
+  return false;
+}
+function shouldAskFlash(g, p, mode){
+  if(mode === 1) return true;
+  if(!hasFlashAction(g, p)) return false;
+  if(mode === 3) return lethalSpot(g, p);
+  return true;
+}
+
+async function ask(g, p, method, ...args){
+  const a = g.agents[p.idx];
+  if(a.isCPU && g.delay) await g.delay(method);
+  return await a[method](g, p, ...args);
+}
+
+// カードを使う（召喚／マジック／領域）。4-2 の順序：確認→支払い→行き先→再計算→効果
+async function applyPlay(g, p, act, timing){
+  const card = p.hand.find(c => c.uid === act.uid);
+  if(!card) throw new RuleError('手札にないカード');
+  const chk = checkPlay(g, p, card, timing, act.target);
+  if(!chk.ok) throw new RuleError(chk.reason);
+  if(chk.cands && act.target == null) throw new RuleError('対象が未指定');
+  const d = card.def, amount = chk.pay;
+  const paid = doPay(g, p, amount, act.payFrom);                     // 2. 支払い
+  p.hand.splice(p.hand.indexOf(card), 1);
+  g.stats.plays[d.id] = (g.stats.plays[d.id] || 0) + 1;
+  if(timing === 'flash') g.stats.flashPlays[d.id] = (g.stats.flashPlays[d.id] || 0) + 1;
+  const payTxt = `支払い${amount}${paid.plan.length ? `（ユニット上から${amount - paid.fromStock}）` : ''}`;
+  if(isUnitDef(d)){
+    const u = makeUnit(g, card, p);
+    u.orbs = 1; p.recovery += amount - 1; p.field.push(u);          // 3. Lv1維持分1個をユニットへ、残りは回収待ち
+    if(timing === 'flash' && g.battle){
+      u.flashBattle = g.battle.id;                                   // そのバトルではアタック不可（アタックは宣言済みのため実質影響なし）
+      if(g.battle.window === 'W2') u.noBlockBattle = g.battle.id;   // W2で出したユニットはそのバトルでブロック不可
+      g.stats.flashSummons++;
+    }
+    log(g, `${p.name}：${d.name}を${timing === 'flash' ? '迅雷でフラッシュ召喚' : '召喚'}（${payTxt}）`);
+    selfDestructCheck(g); checkInv(g); upd(g);                       // 4. 再計算（BPは都度計算）／自壊
+    const e = d.effect;                                              // 5. 召喚時効果
+    if(e && e.timing === 'on_summon'){
+      if(e.target){
+        const c = targetCandidates(g, p, e);
+        if(!c.length) log(g, `${d.name}の召喚時効果：対象なし`);
+        else {
+          const r = await ask(g, p, 'chooseTarget', d, c);
+          let t = c.find(x => x.uid === r);
+          if(!t){ err(g, `${p.name} 召喚時効果の対象が不正 → 候補の先頭を使用`); t = c[0]; }
+          applyEffect(g, p, e, t);
+        }
+      } else applyEffect(g, p, e, null);
+      await flushBurstB(g);
+    }
+  } else if(d.type === 'magic'){
+    p.recovery += amount; p.trash.push(card);
+    log(g, `${p.name}：${d.name}を使用${timing === 'flash' ? '（フラッシュ）' : ''}（${payTxt}）`);
+    selfDestructCheck(g);
+    let t = null;
+    if(chk.cands){
+      t = findUnit(g, act.target);
+      if(!t){ log(g, `${d.name}：対象が場を離れたため効果なし`); checkInv(g); upd(g); return; }
+    }
+    applyEffect(g, p, d.effect, t);
+    await flushBurstB(g);
+  } else if(d.type === 'area'){
+    p.recovery += amount;
+    if(p.area){ p.trash.push(p.area); log(g, `${p.name}：${p.area.def.name}を捨て札へ`); }
+    p.area = card;
+    log(g, `${p.name}：領域「${d.name}」を設置（${payTxt}）`);
+    selfDestructCheck(g);
+  }
+  checkInv(g); upd(g);
+}
+
+// ---------- 場のフラッシュ効果（5-2 の行動F3：1バトル1回） ----------
+function checkFx(g, p, u){
+  const f = u.def.flashEffect, no = reason => ({ok: false, reason});
+  if(!f) return no('フラッシュ効果なし');
+  if(!g.battle) return no('フラッシュ窓の外');
+  if(u.owner !== p.idx || !p.field.includes(u)) return no('自分の場のユニットではない');
+  if(f.oncePerBattle && u.fxBattle === g.battle.id) return no('このバトルでは使用済み');
+  if(f.kind === 'discard_draw' && p.hand.length < (f.discard || 1)) return no('捨てる手札がない');
+  return {ok: true};
+}
+function applyFx(g, p, act){
+  const u = p.field.find(x => x.uid === act.uid);
+  if(!u) throw new RuleError('場にないユニット');
+  const k = checkFx(g, p, u); if(!k.ok) throw new RuleError(k.reason);
+  const f = u.def.flashEffect;
+  if(f.kind === 'discard_draw'){
+    const c = p.hand.find(x => x.uid === act.discard);
+    if(!c) throw new RuleError('捨てるカードの指定が不正');
+    u.fxBattle = g.battle.id;
+    p.hand.splice(p.hand.indexOf(c), 1); p.trash.push(c);
+    log(g, `${p.name}：${u.def.name}のフラッシュ効果 → ${c.def.name}を捨てる`);
+    drawN(g, p, f.value); log(g, `${p.name}：${f.value}枚引く`);
+  } else if(f.kind === 'self_core_add'){
+    u.fxBattle = g.battle.id;
+    const n = Math.min(f.value, p.recovery);
+    p.recovery -= n; u.orbs += n;
+    log(g, `${p.name}：${u.def.name}のフラッシュ効果 → 回収待ち${n}個をこのユニットへ（Lv${level(u)}・BP${bp(g, u)}）`);
+  } else throw new FatalError('未対応のフラッシュ効果: ' + f.kind);
+  g.stats.fx[u.id] = (g.stats.fx[u.id] || 0) + 1;
+  checkInv(g); upd(g);
+}
+// ---------- オーブ移動（4-3：メインステップのみ） ----------
+// act.dist = {ユニットuid: 移動後のオーブ数}。差分はストックとやり取りする（ユニット同士の移動も含む）
+function applyMove(g, p, act){
+  if(g.phase !== 'main' || g.active !== p.idx || g.battle) throw new RuleError('オーブ移動は自分のメインステップのみ');
+  const ch = [];
+  for(const [k, v] of Object.entries(act.dist || {})){
+    const u = p.field.find(x => String(x.uid) === String(k));
+    if(!u || !Number.isInteger(v) || v < 0) throw new RuleError('移動の指定が不正');
+    ch.push([u, v]);
+  }
+  const delta = ch.reduce((s, [u, v]) => s + v - u.orbs, 0);
+  if(delta > p.stock) throw new RuleError('ストック不足');
+  const txt = [];
+  for(const [u, v] of ch) if(u.orbs !== v){ txt.push(`${u.def.name} ${u.orbs}→${v}`); u.orbs = v; }
+  p.stock -= delta;
+  if(!txt.length) return;
+  g.stats.moves++;
+  log(g, `${p.name}：オーブ移動（${txt.join('、')}／ストック${p.stock}）`);
+  selfDestructCheck(g); checkInv(g); upd(g);
+}
+
+// ---------- バースト（6章） ----------
+const BURST_COND = {life_lost: 'A', own_unit_removed_by_opponent_effect: 'B'};
+function checkSet(g, p, card){
+  const no = reason => ({ok: false, reason});
+  if(!card.def.burst) return no('バースト条件を持たないカードはセットできない');
+  if(g.phase !== 'main' || g.active !== p.idx || g.battle) return no('セットは自分のメインステップのみ');
+  if(p.burst) return no('バーストはセット済み（場に1枚まで）');
+  return {ok: true};
+}
+function applySet(g, p, act){
+  const c = p.hand.find(x => x.uid === act.uid);
+  if(!c) throw new RuleError('手札にないカード');
+  const k = checkSet(g, p, c); if(!k.ok) throw new RuleError(k.reason);
+  p.hand.splice(p.hand.indexOf(c), 1); p.burst = c;
+  g.stats.burstSets++;
+  log(g, `${p.name}：バーストを裏向きでセット`);
+  checkInv(g); upd(g);
+}
+// 発動できるか（対象を取る効果は有効な対象が必要）[新F3#3]
+function burstUsable(g, p, def){
+  const e = def.burst.effect;
+  if(e.target) return targetCandidates(g, p, e).length > 0;
+  return true;
+}
+async function tryBurst(g, p, cond){
+  const c = p.burst;
+  if(!c || c.def.burst.condition !== cond) return;
+  g.stats.burstChances++;
+  if(!burstUsable(g, p, c.def)){ g.stats.burstNoTarget++; return; }
+  const yes = await ask(g, p, 'burst', c.def, BURST_COND[cond]);
+  if(!yes){ g.stats.burstDeclined++; log(g, `${p.name}：バーストを発動しない（セットしたまま）`); return; }
+  p.burst = null; g.stats.burstFired++; g.stats.burstFiredBy[c.id] = (g.stats.burstFiredBy[c.id] || 0) + 1;
+  g.burstDepth++;
+  log(g, `${p.name}：バースト「${c.def.name}」を発動（条件${BURST_COND[cond]}）`);
+  let placed = false;
+  try{
+    const e = c.def.burst.effect;
+    let t = null;
+    if(e.target){
+      const cands = targetCandidates(g, p, e);
+      const r = await ask(g, p, 'chooseTarget', c.def, cands);
+      t = cands.find(x => x.uid === r);
+      if(!t){ err(g, `${p.name} バーストの対象が不正 → 候補の先頭を使用`); t = cands[0]; }
+    }
+    applyEffect(g, p, e, t);
+    const as = c.def.burst.afterSummon;
+    if(as){
+      const need = as.placeCoresFromStock || 1;
+      const can = p.field.length < 5 && p.stock >= need;
+      let doIt = false;
+      if(can) doIt = !!(await ask(g, p, 'burstSummon', c.def));
+      if(doIt){
+        const u = makeUnit(g, c, p);
+        p.stock -= need; u.orbs = need; p.field.push(u);
+        if(g.battle){ u.flashBattle = g.battle.id; if(g.battle.window !== 'W1') u.noBlockBattle = g.battle.id; }   // [新F3#6]
+        g.stats.x3Summons++;
+        log(g, `${p.name}：${c.def.name}を無料で召喚（ストックからオーブ1）`);
+      } else {
+        p.hand.push(c);
+        log(g, `${p.name}：${c.def.name}は召喚せず手札へ${p.field.length >= 5 ? '（場が満杯）' : (p.stock < need ? '（ストック0）' : '')}`);
+      }
+    } else p.trash.push(c);
+    placed = true;
+  } finally {
+    if(!placed && !p.hand.includes(c) && !p.trash.includes(c)) p.trash.push(c);
+    g.burstDepth--;
+  }
+  checkInv(g); upd(g);
+  await flushBurstB(g);   // バーストの効果で相手ユニットが離れた場合の条件B [新F3#4]
+}
+async function flushBurstB(g){
+  while(g.pendingB.size){
+    const idx = g.pendingB.values().next().value; g.pendingB.delete(idx);
+    await tryBurst(g, g.players[idx], 'own_unit_removed_by_opponent_effect');
+  }
+}
+
+function clearMods(g, until){ for(const p of g.players) for(const u of p.field) u.mods = u.mods.filter(m => m.until !== until); }
+
+// ---------- フラッシュ窓（5-1）：優先権は防御側から ----------
+async function flashWindow(g){
+  const b = g.battle;
+  let pr = 1 - b.atkOwner, passes = 0, actions = 0;
+  log(g, `フラッシュ${b.window}（優先権：${g.players[pr].name}から）`);
+  while(true){
+    if(b.attackerGone) break;
+    const pl = g.players[pr];
+    b.priority = pr; upd(g);
+    const act = await ask(g, pl, 'flash', b.window);
+    if(act && (act.type === 'play' || act.type === 'fx')){
+      try{
+        if(act.type === 'play') await applyPlay(g, pl, act, 'flash'); else applyFx(g, pl, act);
+        g.stats.flashActions++; actions++; passes = 0;
+      }catch(e){
+        if(!(e instanceof RuleError)) throw e;
+        err(g, `${pl.name} 不正なフラッシュ行動：${e.message}（パス扱い）`); passes++;
+      }
+    } else { passes++; log(g, `${pl.name}：パス${act && act.auto ? '（自動）' : ''}`); }
+    if(passes >= 2) break;
+    if(actions >= SETTINGS.flashActionCap){
+      err(g, `フラッシュ${b.window}が${SETTINGS.flashActionCap}行動に到達したため窓を閉じた`); g.stats.capHits++; break;
+    }
+    pr = 1 - pr;
+  }
+  b.priority = null;
+}
+
+// ---------- アタック（4-6） ----------
+async function doAttack(g, p, u){
+  const d = opp(g, p);
+  u.tapped = true;
+  g.battleSeq = (g.battleSeq || 0) + 1;
+  g.battle = {id: g.battleSeq, attacker: u.uid, atkOwner: p.idx, blocker: null, attackerGone: false, blockerGone: false, window: null, priority: null};
+  g.stats.attacks++;
+  log(g, `${p.name}：${u.def.name}でアタック`);
+  try{
+    const e = u.def.effect;
+    if(e && e.kind === 'attack_bp_up' && e.timing === 'attack'){
+      u.mods.push({value: e.value, until: SETTINGS.attackBpUpDuration});
+      log(g, `${u.def.name}：アタック時 BP+${e.value} → ${bp(g, u)}`);
+    }
+    upd(g);
+    g.battle.window = 'W1'; await flashWindow(g);
+    if(g.battle.attackerGone){ g.stats.aborted++; log(g, 'アタッカーが場を離れたためアタック終了（ライフ無傷）'); return; }
+    g.battle.window = 'block'; upd(g);
+    const cands = d.field.filter(x => !x.tapped && x.noBlockBattle !== g.battle.id);
+    let blk = null;
+    if(cands.length){
+      const r = await ask(g, d, 'block', u, cands);
+      if(r != null){ blk = cands.find(x => x.uid === r) || null; if(!blk) err(g, `${d.name} 不正なブロッカー指定（ブロックなし扱い）`); }
+    }
+    if(blk){ blk.tapped = true; g.battle.blocker = blk.uid; log(g, `${d.name}：${blk.def.name}でブロック`); }
+    else log(g, cands.length ? `${d.name}：ブロックしない` : `${d.name}：ブロックできるユニットなし`);
+    upd(g);
+    g.battle.window = 'W2'; await flashWindow(g);
+    if(g.battle.attackerGone){ g.stats.aborted++; log(g, 'アタッカーが場を離れたためアタック終了（ライフ無傷）'); return; }
+    let lifeHit = false;
+    if(blk && !g.battle.blockerGone){
+      const a = bp(g, u), b = bp(g, blk);
+      log(g, `BP比較：${u.def.name} ${a} vs ${blk.def.name} ${b}`);
+      if(a > b) leaveField(g, blk, 'trash', 'battle');
+      else if(b > a) leaveField(g, u, 'trash', 'battle');
+      else { leaveField(g, u, 'trash', 'battle'); leaveField(g, blk, 'trash', 'battle'); }
+    } else {
+      if(blk) log(g, 'ブロッカーが場を離れたためライフへ');
+      lifeHit = true;
+    }
+    clearMods(g, 'battle');                                         // 「このバトル中」はBP比較・破壊判定の後に消える
+    if(lifeHit){
+      d.life--; d.recovery++; g.stats.lifeHits++;
+      log(g, `${d.name}のライフ−1（残り${d.life}）`);
+      checkInv(g); upd(g);
+      if(d.life <= 0) throw new GameOver(p.idx, 'life');
+      g.battle.window = 'burst';
+      await tryBurst(g, d, 'life_lost');                             // 7. ライフが減った側のバースト窓（条件A）
+    }
+    checkInv(g);
+  } finally {
+    clearMods(g, 'battle'); g.battle = null; upd(g);
+  }
+}
+
+async function mainStep(g, p){
+  for(let guard = 0; ; guard++){
+    if(guard > 300) throw new FatalError('メインステップの行動数が異常');
+    const act = await ask(g, p, 'main');
+    if(!act || act.type === 'end') return;
+    if(act.type !== 'play' && act.type !== 'move' && act.type !== 'set'){ err(g, '不明な行動'); if(g.agents[p.idx].isCPU) return; continue; }
+    try{ if(act.type === 'move') applyMove(g, p, act); else if(act.type === 'set') applySet(g, p, act); else await applyPlay(g, p, act, 'main'); }
+    catch(e){ if(!(e instanceof RuleError)) throw e; err(g, `${p.name} 不正な行動：${e.message}`); if(g.agents[p.idx].isCPU) return; }
+  }
+}
+async function attackStep(g, p){
+  for(let guard = 0; ; guard++){
+    if(guard > 60) throw new FatalError('アタック回数が異常');
+    const act = await ask(g, p, 'attack');
+    if(!act || act.type === 'end') return;
+    const u = p.field.find(x => x.uid === act.uid && !x.tapped);
+    if(!u){ err(g, `${p.name} アタックできないユニットを指定`); if(g.agents[p.idx].isCPU) return; continue; }
+    await doAttack(g, p, u);
+  }
+}
+
+// ---------- ターン（4-1） ----------
+async function runTurn(g){
+  const p = g.players[g.active];
+  g.turn++; p.turnsTaken++;
+  log(g, `── ターン${g.turn}：${p.name} ──`);
+  g.phase = 'core';
+  p.stock += 1; p.orbTotal += 1;
+  let back = 0; if(p.recovery > 0){ p.recovery--; p.stock++; back = 1; }
+  log(g, `コアステップ：新規オーブ+1／回収待ち→ストック ${back}`);
+  checkInv(g); upd(g);
+  g.phase = 'draw';
+  const n = (p.idx !== g.first && p.turnsTaken === 1) ? 2 : 1;
+  drawN(g, p, n); log(g, `ドロー ${n}枚`); upd(g);
+  g.phase = 'refresh';
+  for(const u of p.field) u.tapped = false; upd(g);
+  g.phase = 'main'; await mainStep(g, p);
+  g.phase = 'attack';
+  if(p.idx === g.first && p.turnsTaken === 1) log(g, '先攻の最初のターンはアタックできない（アタックステップなし）');   // 決定5／4-1
+  else await attackStep(g, p);
+  g.phase = 'end';
+  clearMods(g, 'turn');
+  g.active = 1 - g.active; upd(g);
+}
+
+function checkInv(g){
+  for(const p of g.players){
+    const tot = p.stock + p.recovery + p.life + unitOrbs(p);
+    if(tot !== p.orbTotal) throw new FatalError(`${p.name} オーブ総数不一致（${tot}／想定${p.orbTotal}）`);
+    if(p.stock < 0 || p.recovery < 0 || p.life < 0) throw new FatalError(`${p.name} 負の値`);
+    if(p.field.length > 5) throw new FatalError(`${p.name} 場が6体以上`);
+    for(const u of p.field) if(u.orbs < 1) throw new FatalError(`${p.name} オーブ0のユニットが場に残存`);
+    const cards = p.deck.length + p.hand.length + p.field.length + p.trash.length + (p.area ? 1 : 0) + (p.burst ? 1 : 0);
+    if(cards !== 36) throw new FatalError(`${p.name} カード総数不一致（${cards}）`);
+  }
+}
+
+function newGame(o){
+  const seed = (o.seed >>> 0);
+  const g = {seed, rng: mulberry32(seed), uid: 1, turn: 0, active: 0, first: 0, phase: 'setup', players: [], battle: null,
+    over: false, winner: null, reason: null, log: [], errors: [], agents: o.agents, onUpdate: o.onUpdate || null,
+    delay: o.delay || null, logLimit: o.logLimit || 3000, pendingB: new Set(), burstDepth: 0,
+    stats: {flashActions: 0, attacks: 0, aborted: 0, lifeHits: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {}, plays: {}, flashPlays: {},
+      burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstFiredBy: {}}};
+  for(let i = 0; i < 2; i++){
+    const p = {idx: i, name: o.names ? o.names[i] : 'P' + (i + 1), life: 5, stock: 4, recovery: 0,
+      deck: [], hand: [], field: [], area: null, burst: null, trash: [], orbTotal: 9, turnsTaken: 0};
+    for(const [id, n] of DECK_LIST) for(let k = 0; k < n; k++) p.deck.push(mkCard(g, id));
+    shuffle(g, p.deck);
+    g.players.push(p);
+  }
+  g.first = g.rng() < 0.5 ? 0 : 1; g.active = g.first;
+  for(const p of g.players) for(let k = 0; k < 4; k++) p.hand.push(p.deck.pop());
+  log(g, `先攻：${g.players[g.first].name}`);
+  return g;
+}
+async function runGame(g){
+  try{
+    while(!g.over){
+      if(g.turn >= SETTINGS.turnCap) throw new FatalError(`ターン上限（${SETTINGS.turnCap}）に到達`);
+      await runTurn(g);
+    }
+  }catch(e){
+    if(e instanceof GameOver){ g.over = true; g.winner = e.winner; g.reason = e.reason;
+      log(g, `勝者：${g.players[e.winner].name}（${e.reason === 'life' ? 'ライフ0' : 'ドロー失敗'}）`); }
+    else { err(g, '異常終了：' + (e && e.message)); g.over = true; g.winner = null; g.reason = 'error'; g.fatal = String(e && e.stack || e); }
+  }
+  g.battle = null; g.phase = 'over'; upd(g);
+  return g;
+}
+
+// ---------- CPU（9章） ----------
+function pickBy(g, arr, f, wantMax){
+  let best = null, out = [];
+  for(const x of arr){ const v = f(x); if(best === null || (wantMax ? v > best : v < best)){ best = v; out = [x]; } else if(v === best) out.push(x); }
+  return out.length ? out[Math.floor(g.rng() * out.length)] : null;   // 同点はランダム
+}
+const atkBp = (g, u) => bp(g, u) + ((u.def.effect && u.def.effect.kind === 'attack_bp_up') ? u.def.effect.value : 0);   // 宣言前の見込み（アタック時BP+込み）
+const survives = (mine, theirs) => mine > theirs;   // 決定2：同値（相打ち）は負け扱い（正式）
+const magicKind = (c, k) => c.def.type === 'magic' && c.def.effect && c.def.effect.kind === k;
+const isFirstTurnOfFirst = (g, p) => p.idx === g.first && p.turnsTaken === 1;
+function areaBonus(p, def){ const a = p.area && p.area.def.effect; return (a && a.kind === 'field_bp_up' && a.targetColor === def.color) ? a.value : 0; }
+const blockable = (g, p) => p.field.filter(x => !x.tapped && !(g.battle && x.noBlockBattle === g.battle.id));
+
+function cpuBlocker(g, p, att, cands){
+  if(!cands.length) return null;
+  const a = bp(g, att);
+  const ok = cands.filter(u => survives(bp(g, u), a));
+  if(ok.length) return pickBy(g, ok, u => bp(g, u), false);    // 負けない最小
+  const tie = cands.filter(u => bp(g, u) === a);
+  if(tie.length) return pickBy(g, tie, u => bp(g, u), false);  // 決定6：相打ちできる最小
+  if(p.life >= 3) return null;                                 // 決定4：ライフ3以上で勝てる／相打ちにできるブロッカーなし → ライフで受ける
+  return pickBy(g, cands, u => bp(g, u), false);              // 全員負ける → BP最小で受ける
+}
+// CPUの支払い：ストック → ユニットの余剰オーブ（レベルを下げない分）の順 [新#2]
+function cpuPayFrom(g, p, def){
+  let need = paymentFor(p, def) - p.stock; if(need <= 0) return null;
+  const m = {};
+  for(const u of [...p.field].sort((a, b) => surplus(b) - surplus(a))){
+    const t = Math.min(Math.max(0, surplus(u)), need);
+    if(t > 0){ m[u.uid] = t; need -= t; }
+    if(!need) break;
+  }
+  return m;
+}
+const cpuCan = (g, p, c, timing, t) => checkPlay(g, p, c, timing, t, {allowUnits: 'surplus'}).ok;
+const cpuAct = (g, p, c, t) => ({type: 'play', uid: c.uid, target: t, payFrom: cpuPayFrom(g, p, c.def)});
+function cpuFlashPlay(g, p, kind, target){
+  const c = p.hand.find(c => magicKind(c, kind) && cpuCan(g, p, c, 'flash', target.uid));
+  return c ? cpuAct(g, p, c, target.uid) : null;
+}
+// オーブ移動の予約分：フラッシュで使える手札のうち最安の支払い [新#1]
+function cpuReserve(g, p){
+  let r = 0;
+  for(const c of p.hand){
+    const d = c.def;
+    const flashable = (d.type === 'magic' && d.useTiming.includes('flash')) || (isUnitDef(d) && d.keywords.includes('jinrai'));
+    if(!flashable) continue;
+    const pay = paymentFor(p, d); r = r ? Math.min(r, pay) : pay;
+  }
+  return r;
+}
+const CPU = {
+  isCPU: true,
+  main(g, p){
+    const o = opp(g, p);
+    const can = (c, t) => cpuCan(g, p, c, 'main', t);
+    // 1. M3/M6（core_charge）：回収待ち2個以上
+    if(p.recovery >= 2){ const c = p.hand.find(c => magicKind(c, 'core_charge') && can(c)); if(c) return cpuAct(g, p, c); }
+    // 2. バーストのセット（通常の召喚・使用を妨げない範囲）[新F3#9]
+    if(!p.burst){
+      const bs = p.hand.filter(c => c.def.burst && !(isUnitDef(c.def) && can(c)));
+      if(bs.length){ const c = pickBy(g, bs, () => 0, true); return {type: 'set', uid: c.uid}; }
+    }
+    // 3. 払えるユニットをコストの高い順に召喚
+    const us = p.hand.filter(c => isUnitDef(c.def) && can(c));
+    if(us.length){ const c = pickBy(g, us, c => c.def.cost, true); return cpuAct(g, p, c); }
+    // 4. M5
+    const ex = p.hand.find(c => magicKind(c, 'exhaust') && can(c));
+    if(ex && !isFirstTurnOfFirst(g, p) && p.field.some(u => !u.tapped)){
+      const ts = o.field.filter(u => !u.tapped && bp(g, u) >= 3000);
+      if(ts.length){ const t = pickBy(g, ts, u => bp(g, u), true); if(can(ex, t.uid)) return cpuAct(g, p, ex, t.uid); }
+    }
+    // 5. 領域
+    const ar = p.hand.find(c => c.def.type === 'area' && can(c) && !(p.area && p.area.id === c.id));
+    if(ar) return cpuAct(g, p, ar);
+    // 6. オーブ移動でレベルを整える [新#1]：余ったストック（予約分を除く）で、次のレベルにちょうど届くユニットへ
+    const spare = p.stock - cpuReserve(g, p);
+    if(spare > 0){
+      const opts = [];
+      for(const u of p.field){
+        const nx = u.def.levels.find(L => L.lv === level(u) + 1); if(!nx) continue;
+        const need = nx.cores - u.orbs;
+        if(need > 0 && need <= spare) opts.push({u, need, gain: nx.bp - baseBp(u)});
+      }
+      if(opts.length){ const x = pickBy(g, opts, x => x.gain / x.need, true); return {type: 'move', dist: {[x.u.uid]: x.u.orbs + x.need}}; }
+    }
+    return {type: 'end'};
+  },
+  attack(g, p){
+    const o = opp(g, p);
+    const mine = p.field.filter(u => !u.tapped);
+    if(!mine.length) return {type: 'end'};
+    const blockers = o.field.filter(u => !u.tapped);
+    const maxB = blockers.length ? Math.max(...blockers.map(u => bp(g, u))) : -1;
+    const ok = mine.filter(u => !blockers.length || atkBp(g, u) >= maxB);
+    if(!ok.length) return {type: 'end'};
+    const u = pickBy(g, ok, u => atkBp(g, u), true);              // [未決定#7] 宣言順はBPの高い順
+    return {type: 'attack', uid: u.uid};
+  },
+  block(g, p, att, cands){ const b = cpuBlocker(g, p, att, cands); return b ? b.uid : null; },
+  // 有効な対象がある／X3の召喚まで繋がる場合は発動
+  burst(g, p, def){
+    if(def.burst.afterSummon){
+      const after = p.stock + Math.min(def.burst.effect.value || 0, p.recovery);
+      return p.field.length < 5 && after >= (def.burst.afterSummon.placeCoresFromStock || 1);
+    }
+    return burstUsable(g, p, def);
+  },
+  burstSummon(){ return true; },
+  chooseTarget(g, p, def, cands){
+    const b = g.battle;
+    if(b){ const pri = cands.find(u => u.owner !== p.idx && (u.uid === b.attacker || u.uid === b.blocker)); if(pri) return pri.uid; }  // [新#6]
+    return pickBy(g, cands, u => bp(g, u), true).uid;           // [未決定#8] 最もBPの高い対象
+  },
+  flash(g, p, w){
+    const b = g.battle; if(!b) return {type: 'pass'};
+    const att = findUnit(g, b.attacker); if(!att) return {type: 'pass'};
+    const blk = (b.blocker && !b.blockerGone) ? findUnit(g, b.blocker) : null;
+    const A = bp(g, att), B = blk ? bp(g, blk) : null;
+    const isDef = p.idx !== b.atkOwner;
+    // G4：使うとLv2に届き、かつそのバトルの勝敗（勝つ／生き残る）が変わるときだけ
+    const g4 = () => {
+      for(const u of p.field){
+        const f = u.def.flashEffect;
+        if(!f || f.kind !== 'self_core_add' || !checkFx(g, p, u).ok || level(u) >= 2) continue;
+        const after = u.orbs + Math.min(f.value, p.recovery);
+        if(levelAt(u.def, after) !== 2) continue;
+        const now = bp(g, u), nb = now + bpAtLevel(u.def, 2) - baseBp(u);
+        let change = false;
+        if(isDef && w === 'W2' && blk === u) change = !survives(now, A) && survives(nb, A);
+        if(isDef && w === 'W1' && blockable(g, p).includes(u)) change = !blockable(g, p).some(x => survives(bp(g, x), A)) && survives(nb, A);
+        if(!isDef && w === 'W2' && u === att && blk) change = !survives(now, B) && survives(nb, B);
+        if(change) return {type: 'fx', uid: u.uid};
+      }
+      return null;
+    };
+    // B5：今すぐ使えない高コスト札があるときだけ。捨てるのは最もコストの高いカード [新#4]
+    const b5 = () => {
+      if(!p.deck.length) return null;                            // [新#5]
+      const u = p.field.find(u => u.def.flashEffect && u.def.flashEffect.kind === 'discard_draw' && checkFx(g, p, u).ok);
+      if(!u) return null;
+      const avail = p.stock + surplusOrbs(p);
+      const stuck = p.hand.some(c => c.def.type !== 'burst' && paymentFor(p, c.def) > avail);
+      if(!stuck) return null;
+      const c = pickBy(g, p.hand, c => c.def.cost, true);
+      return {type: 'fx', uid: u.uid, discard: c.uid};
+    };
+    // 迅雷：ブロッカーがいない／不利なとき、状況が変わる迅雷ユニットだけ出す [新#7]
+    const jin = () => {
+      const plan = cpuBlocker(g, p, att, blockable(g, p));
+      if(plan && survives(bp(g, plan), A)) return null;
+      const good = p.hand.filter(c => {
+        if(!isUnitDef(c.def) || !c.def.keywords.includes('jinrai') || !cpuCan(g, p, c, 'flash', null)) return false;
+        if(survives(c.def.levels[0].bp + areaBonus(p, c.def), A)) return true;
+        const e = c.def.effect;
+        if(e && e.timing === 'on_summon' && (e.kind === 'bounce' || e.kind === 'destroy') && e.target && e.target.owner === 'opponent' && targetCandidates(g, p, e).includes(att)) return true;
+        return !plan && !blockable(g, p).length && p.life < 3;   // 受けないと負けに近い場面で壁を出す
+      });
+      if(!good.length) return null;
+      return cpuAct(g, p, pickBy(g, good, c => c.def.levels[0].bp, true));
+    };
+    let a = null;
+    if(isDef){
+      if(w === 'W1'){
+        a = jin() || g4(); if(a) return a;
+        const plan = cpuBlocker(g, p, att, blockable(g, p));
+        if(plan && !survives(bp(g, plan), A) && survives(bp(g, plan) + 3000, A)){ a = cpuFlashPlay(g, p, 'bp_up', plan); if(a) return a; }
+      } else if(w === 'W2'){
+        if(blk){
+          if(!survives(B, A)){
+            a = g4(); if(a) return a;
+            if(survives(B + 3000, A)){ a = cpuFlashPlay(g, p, 'bp_up', blk); if(a) return a; }
+            a = cpuFlashPlay(g, p, 'destroy', att) || cpuFlashPlay(g, p, 'bounce', att);   // [未決定#10]「得なら」
+            if(a) return a;
+          }
+        } else {
+          a = cpuFlashPlay(g, p, 'destroy', att) || cpuFlashPlay(g, p, 'bounce', att);
+          if(a) return a;
+        }
+      }
+    } else if(w === 'W2' && blk){
+      if(!survives(A, B)){
+        a = g4(); if(a) return a;
+        if(survives(A + 3000, B)){ a = cpuFlashPlay(g, p, 'bp_up', att); if(a) return a; }
+      }
+      if(opp(g, p).life <= 2){ a = cpuFlashPlay(g, p, 'destroy', blk) || cpuFlashPlay(g, p, 'bounce', blk); if(a) return a; }
+    }
+    return b5() || {type: 'pass'};
+  }
+};
+
+// ---------- 自動対戦 ----------
+async function runSim(o){
+  const r = {games: o.games, seed: o.seed, decided: 0, firstWins: 0, errorGames: 0, errorsTotal: 0, fatalGames: 0,
+    turns: 0, flash: 0, attacks: 0, aborted: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {},
+    burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {}};
+  for(let i = 0; i < o.games; i++){
+    const g = newGame({seed: (o.seed + i) >>> 0, agents: [CPU, CPU], names: ['P1', 'P2'], logLimit: 120});
+    await runGame(g);
+    r.turns += g.turn; r.flash += g.stats.flashActions; r.attacks += g.stats.attacks; r.aborted += g.stats.aborted; r.capHits += g.stats.capHits;
+    for(const [k, v] of Object.entries(g.stats.plays)) r.plays[k] = (r.plays[k] || 0) + v;
+    for(const [k, v] of Object.entries(g.stats.flashPlays)) r.flashPlays[k] = (r.flashPlays[k] || 0) + v;
+    for(const [k, v] of Object.entries(g.stats.fx)) r.fx[k] = (r.fx[k] || 0) + v;
+    r.flashSummons += g.stats.flashSummons; r.moves += g.stats.moves;
+    for(const k of ['burstSets', 'burstChances', 'burstFired', 'burstDeclined', 'burstNoTarget', 'x3Summons']) r[k] += g.stats[k];
+    for(const [k, v] of Object.entries(g.stats.burstFiredBy)) r.burstFiredBy[k] = (r.burstFiredBy[k] || 0) + v;
+    r.burstLeft += g.players.filter(q => q.burst).length;
+    if(g.errors.length){ r.errorGames++; r.errorsTotal += g.errors.length; if(r.errList.length < 30) r.errList.push({seed: g.seed, errors: g.errors.slice(0, 5)}); }
+    if(g.reason === 'error'){ r.fatalGames++; r.reasons.error++; }
+    else { r.decided++; r.reasons[g.reason]++; if(g.winner === g.first) r.firstWins++; }
+    if(o.onProgress && (i % 10 === 9 || i === o.games - 1)) await o.onProgress(i + 1, r);
+  }
+  r.firstRate = r.decided ? r.firstWins / r.decided : 0;
+  r.avgTurns = r.turns / o.games;
+  return r;
+}
+
+// ---------- 表示用テキスト ----------
+function targetText(t){ let s = ''; if(t.state === 'untapped') s += '疲労していない'; if(t.maxCost != null) s += `コスト${t.maxCost}以下の`;
+  if(t.maxBp != null) s += `BP${t.maxBp}以下の`; return s + (t.owner === 'opponent' ? '相手ユニット1体' : '自分のユニット1体'); }
+function effText(e){
+  if(!e) return '';
+  const pre = e.timing === 'on_summon' ? '召喚時：' : '';
+  switch(e.kind){
+    case 'draw': return pre + `${e.value}枚引く`;
+    case 'core_boost': return pre + `回収待ち${e.value}個→ストック`;
+    case 'core_charge': return pre + `回収待ちから${e.value}個をストックへ`;
+    case 'attack_bp_up': return `アタック時 BP+${e.value}`;
+    case 'bp_up': return pre + targetText(e.target) + `を${e.duration === 'turn' ? 'このターン' : 'このバトル中'} BP+${e.value}`;
+    case 'destroy': return pre + (e.target ? targetText(e.target) : '') + 'を破壊';
+    case 'bounce': return pre + (e.target ? targetText(e.target) : '') + 'を手札に戻す';
+    case 'exhaust': return pre + targetText(e.target) + 'を疲労させる';
+    case 'field_bp_up': return `自分の${CJ[e.targetColor]}ユニット全て BP+${e.value}`;
+    case 'self_core_add': return `回収待ちから${e.value}個をこのユニットに追加${e.partial ? '（ある分だけ）' : ''}`;
+    case 'discard_draw': return `手札${e.discard}枚を捨てる→${e.value}枚引く`;
+  }
+  return e.kind;
+}
+function describe(d){
+  const L = [];
+  if(d.keywords.includes('jinrai')) L.push({t: '迅雷（フラッシュ中に召喚できる）'});
+  if(d.effect) L.push({t: effText(d.effect)});
+  if(d.flashEffect) L.push({t: `[フラッシュ／1バトル1回] ${effText(d.flashEffect)}`});
+  if(d.type === 'area') L.push({t: `${CJ[d.color]}シンボル${d.symbol}個を持つ`});
+  if(d.burst){
+    const c = d.burst.condition === 'life_lost' ? 'A：自分のライフが減ったとき' : 'B：自分のユニットが相手の効果で離脱したとき';
+    L.push({t: `[バースト ${c}] ${effText(d.burst.effect)}${d.burst.afterSummon ? '。その後、無料で召喚できる（場が満杯なら手札へ）' : ''}`});
+  }
+  if(!L.length) L.push({t: '効果なし'});
+  return L;
+}
+
+root.CA = {DEFS, DEF, DECK_LIST, SETTINGS, CJ, TYPEJ, newGame, runGame, runSim, CPU, checkPlay, paymentFor, reductionOf, symbols,
+  level, baseBp, bp, findUnit, checkSet, burstUsable, hasFlashAction, shouldAskFlash, lethalSpot, levelAt, bpAtLevel, checkFx, surplus, surplusOrbs, describe, effText, unitOrbs, isUnitDef, GameOver, RuleError, FatalError,
+  _: {mkCard, makeUnit, doAttack, flashWindow, applyPlay, applySet, tryBurst, applyFx, applyMove, runTurn, attackStep, mainStep, leaveField, checkInv, drawN, doPay, selfDestructCheck, cpuBlocker}};
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<!-- ================= 画面 ================= -->
+<script id="ui">
+(function(){
+'use strict';
+const CA = window.CA;
+const $app = document.getElementById('app');
+const SAVE_KEY = 'coreabyss_save_v1';
+const CJ = CA.CJ, TYPEJ = CA.TYPEJ;
+const UI = {screen: 'title', g: null, pending: null, sub: null, result: null, logoTaps: [], autoPass: 2, sim: {seed: 1, games: 100, running: false, done: 0, res: null}};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- セーブ（戦績のみ） ----------
+function defSave(){ return {v: 1, totalGames: 0, totalWins: 0, streak: 0, maxStreak: 0, autoPass: 2}; }   // autoPass は F3 で追加した任意項目 [新F3#8]
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return defSave();
+    const o = JSON.parse(raw);
+    if(!o || o.v !== 1) return defSave();
+    return Object.assign(defSave(), o);
+  }catch(e){ return defSave(); }
+}
+function writeSave(s){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(s)); }catch(e){} }
+
+// ---------- 人間側エージェント ----------
+function waitFor(kind, data){ return new Promise(res => { UI.pending = {kind, data: data || {}, res}; UI.sub = null; render(); }); }
+function answer(v){ const p = UI.pending; if(!p) return; UI.pending = null; UI.sub = null; p.res(v); render(); }
+const Human = {
+  isCPU: false,
+  main: () => waitFor('main'),
+  attack: () => waitFor('attack'),
+  block: (g, p, att, cands) => waitFor('block', {att, cands}),
+  flash: (g, p, w) => CA.shouldAskFlash(g, p, UI.autoPass) ? waitFor('flash', {w}) : {type: 'pass', auto: true},
+  chooseTarget: (g, p, def, cands) => waitFor('target', {def, cands}),
+  burst: (g, p, def, cond) => waitFor('burst', {def, cond}),
+  burstSummon: (g, p, def) => waitFor('burstSummon', {def})
+};
+function subPromise(s){ return new Promise(res => { s.res = res; UI.sub = s; render(); }); }
+
+let rq = false;
+function scheduleRender(){ if(rq) return; rq = true; requestAnimationFrame(() => { rq = false; render(); }); }
+
+async function startBattle(){
+  const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+  const g = CA.newGame({seed, agents: [Human, CA.CPU], names: ['あなた', 'CPU'], onUpdate: scheduleRender,
+    delay: m => sleep(m === 'flash' ? 260 : 480)});
+  UI.g = g; UI.pending = null; UI.sub = null; UI.screen = 'battle'; render();
+  await CA.runGame(g);
+  if(UI.g !== g) return;
+  const s = loadSave();
+  if(g.reason !== 'error'){
+    s.totalGames++;
+    if(g.winner === 0){ s.totalWins++; s.streak++; s.maxStreak = Math.max(s.maxStreak, s.streak); } else s.streak = 0;
+    writeSave(s);
+  }
+  UI.result = {won: g.winner === 0, reason: g.reason, turns: g.turn, life: [g.players[0].life, g.players[1].life], save: s, errors: g.errors.slice()};
+  await sleep(500);
+  UI.screen = 'result'; UI.pending = null; UI.sub = null; render();
+}
+
+async function humanPlay(uid){
+  const g = UI.g, me = g.players[0], pend = UI.pending;
+  if(!pend || (pend.kind !== 'main' && pend.kind !== 'flash')) return;
+  const timing = pend.kind;
+  const card = me.hand.find(c => c.uid === uid); if(!card) return;
+  const chk = CA.checkPlay(g, me, card, timing, null);
+  if(!chk.ok) return;
+  let target = null;
+  if(chk.cands){
+    target = await subPromise({type: 'pick', def: card.def, cands: chk.cands, cancel: true});
+    if(target == null){ UI.sub = null; render(); return; }
+  }
+  let payFrom = null;
+  if(chk.needUnits){
+    payFrom = await subPromise({type: 'pay', need: chk.pay - me.stock, pay: chk.pay, alloc: {}, def: card.def});
+    if(!payFrom){ UI.sub = null; render(); return; }
+  }
+  if(UI.pending !== pend) return;
+  answer({type: 'play', uid, target, payFrom});
+}
+
+// ---------- 描画 ----------
+function render(){
+  let h = '';
+  switch(UI.screen){
+    case 'title': h = renderTitle(); break;
+    case 'battle': h = renderBattle(); break;
+    case 'result': h = renderResult(); break;
+    case 'cards': h = renderCards(); break;
+    case 'sim': h = renderSim(); break;
+  }
+  h += renderModal();
+  $app.innerHTML = h;
+}
+function renderTitle(){
+  return `<div class="title">
+    <div class="logo" data-a="logo"><div class="l1">CORE</div><div class="l2">ABYSS</div><div class="kari">（仮タイトル）</div></div>
+    <div class="sub">F3ビルド：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
+    <button class="btn primary" data-a="start">バトル開始</button>
+    <button class="btn" data-a="cards">カード一覧</button>
+    <button class="btn" data-a="stats">戦績</button>
+    <button class="btn" data-a="settings">設定（自動パス）</button>
+  </div>`;
+}
+function lifeDots(n){ let s = ''; for(let i = 0; i < 5; i++) s += `<i class="lo${i < n ? ' on' : ''}"></i>`; return `<span class="life">${s}</span>`; }
+function pbar(g, p, mine){
+  const ar = p.area ? `<span class="chip on c-${p.area.def.color}" data-a="areainfo" data-p="${p.idx}">領域：${esc(p.area.def.name)}</span>` : `<span class="chip">領域：なし</span>`;
+  return `<div class="pbar${mine ? ' me' : ''}">
+    <span class="pname">${esc(p.name)}${g.active === p.idx && !g.over ? '<span class="turnmark">手番</span>' : ''}</span>
+    ${lifeDots(p.life)}
+    <span class="stat">ストック<b class="orbc">${p.stock}</b></span>
+    <span class="stat">回収待ち<b>${p.recovery}</b></span>
+    ${mine ? '' : `<span class="stat">手札<b>${p.hand.length}</b></span>`}
+    <span class="stat">山<b>${p.deck.length}</b></span>
+    ${ar}${p.burst ? (mine ? `<span class="chip on c-${p.burst.def.color}" data-a="burstinfo">バースト：${esc(p.burst.def.name)}</span>` : '<span class="chip on c-none">バースト：セットあり</span>') : '<span class="chip">バースト：なし</span>'}
+  </div>`;
+}
+function unitTile(g, u, mine){
+  const b = g.battle;
+  const v = CA.bp(g, u), base = CA.baseBp(u);
+  const canAtk = mine && UI.pending && UI.pending.kind === 'attack' && !u.tapped;
+  return `<div class="unit c-${u.def.color}${u.tapped ? ' tapped' : ''}${b && b.attacker === u.uid ? ' atk' : ''}${b && b.blocker === u.uid ? ' blk' : ''}" data-a="unit" data-uid="${u.uid}">
+    <div class="un">${esc(u.def.name)}</div>
+    <div class="ubp${v !== base ? ' mod' : ''}">${v}</div>
+    <div class="ulv"><span>Lv${CA.level(u)}</span><span class="orbs">${'●'.repeat(u.orbs)}</span></div>
+    ${u.tapped ? '<div class="tapb">疲労</div>' : ''}
+    ${canAtk ? `<button class="atkbtn" data-a="atk" data-uid="${u.uid}">⚔ アタック</button>` : ''}
+  </div>`;
+}
+function handCard(g, p, c){
+  const d = c.def, pend = UI.pending;
+  const usable = pend && (pend.kind === 'main' || pend.kind === 'flash') && CA.checkPlay(g, p, c, pend.kind, null).ok;
+  const pay = d.type === 'burst' ? null : CA.paymentFor(p, d);
+  return `<div class="hcard c-${d.color}${usable ? ' usable' : ''}" data-a="hand" data-uid="${c.uid}">
+    <div class="hc-cost">${d.type === 'burst' ? '—' : d.cost}${pay != null && pay !== d.cost ? `<small>→${pay}</small>` : ''}</div>
+    <div class="hc-name">${esc(d.name)}</div>
+    ${d.levels ? `<div class="hc-bp">BP ${d.levels[0].bp}</div>` : ''}
+    <div class="hc-type">${CJ[d.color]}・${TYPEJ[d.type]}</div>
+  </div>`;
+}
+function battleBanner(g){
+  const b = g.battle; if(!b) return '';
+  const a = CA.findUnit(g, b.attacker), k = b.blocker ? CA.findUnit(g, b.blocker) : null;
+  const left = a ? `${esc(a.def.name)} BP${CA.bp(g, a)}` : '（アタッカー離脱）';
+  const right = b.blocker ? (k ? `${esc(k.def.name)} BP${CA.bp(g, k)}` : '（ブロッカー離脱）') : (b.window === 'W2' || b.window === 'burst' ? 'ブロックなし' : 'ブロック未宣言');
+  const wl = {W1: 'フラッシュW1', W2: 'フラッシュW2', block: 'ブロック宣言', burst: 'バースト'}[b.window] || '';
+  return `<div class="banner"><span>⚔ ${g.players[b.atkOwner].name}：${left} → ${right}</span><span class="win">${wl}</span></div>`;
+}
+function renderBattle(){
+  const g = UI.g, me = g.players[0], op = g.players[1], pend = UI.pending;
+  const logs = g.log.slice(g.battle ? -2 : -3).map(l => `<div>${esc(l.m)}</div>`).join('');
+  let phase = '', btn = '';
+  if(pend && pend.kind === 'main'){
+    const noAtk = g.first === me.idx && me.turnsTaken === 1;
+    phase = '<b>メインステップ</b>' + (noAtk ? '先攻1ターン目はアタック不可' : '手札をタップして使う');
+    btn = `<button class="mini" data-a="move"${me.field.length ? '' : ' disabled'}>オーブ移動</button><button class="go${noAtk ? ' end' : ''}" data-a="toAttack">${noAtk ? 'ターン終了' : 'アタックへ ▶'}</button>`;
+  }
+  else if(pend && pend.kind === 'attack'){ phase = '<b>アタックステップ</b>ユニットの「⚔」でアタック'; btn = `<button class="go end" data-a="endTurn">ターン終了</button>`; }
+  else if(g.over){ phase = '<b>試合終了</b>'; }
+  else if(g.active === 1){ phase = '<b>相手のターン</b>' + ({main: 'メインステップ', attack: 'アタックステップ'}[g.phase] || '処理中…'); }
+  else phase = '<b>処理中…</b>';
+  return `<div class="battle">
+    ${pbar(g, op, false)}
+    <div class="field${op.field.length ? '' : ' empty'}">${op.field.map(u => unitTile(g, u, false)).join('')}</div>
+    <div class="mid" data-a="log">${battleBanner(g)}<div class="logs">${logs}</div></div>
+    <div class="field${me.field.length ? '' : ' empty'}">${me.field.map(u => unitTile(g, u, true)).join('')}</div>
+    ${pbar(g, me, true)}
+    <div class="hand">${me.hand.map(c => handCard(g, me, c)).join('') || '<div class="sub" style="margin:auto">手札なし</div>'}</div>
+    <div class="actbar"><div class="phase">${phase}</div><button class="mini" data-a="settings" aria-label="設定">⚙</button><button class="mini" data-a="log">ログ</button>${btn}</div>
+  </div>`;
+}
+function renderResult(){
+  const r = UI.result;
+  const reason = r.reason === 'life' ? 'ライフ0' : r.reason === 'deckout' ? 'ドロー失敗' : '異常終了';
+  const s = r.save;
+  return `<div class="res">
+    <div class="big ${r.reason === 'error' ? 'lose' : r.won ? 'win' : 'lose'}">${r.reason === 'error' ? 'ERROR' : r.won ? 'WIN' : 'LOSE'}</div>
+    <div class="sub" style="font-size:14px">決着：${reason}／ターン数 ${r.turns}</div>
+    <div class="card"><dl class="kv">
+      <dt>残りライフ</dt><dd>あなた ${r.life[0]}／CPU ${r.life[1]}</dd>
+      <dt>総勝利数</dt><dd>${s.totalWins}</dd><dt>総対戦数</dt><dd>${s.totalGames}</dd>
+      <dt>現在の連勝</dt><dd>${s.streak}</dd><dt>最大連勝</dt><dd>${s.maxStreak}</dd>
+    </dl>${r.errors.length ? `<div class="errl">${esc(r.errors.join('\n'))}</div>` : ''}</div>
+    <button class="btn primary" data-a="start">もう1回</button>
+    <button class="btn" data-a="title">タイトルへ</button>
+  </div>`;
+}
+function renderCards(){
+  const groups = [['red', '紅'], ['blue', '蒼'], ['green', '翠'], ['none', '無']];
+  let h = `<div class="page"><h2>カード一覧（${CA.DEFS.length}種）</h2>`;
+  for(const [c, n] of groups){
+    const list = CA.DEFS.filter(d => d.color === c); if(!list.length) continue;
+    h += `<h4 class="c-${c}">${n}（${list.length}）</h4><div class="grid">` + list.map(d => `
+      <button class="ccard c-${d.color}" data-a="carddef" data-id="${d.id}">
+        <span class="id">${d.id}・コスト${d.cost}</span><span class="n">${esc(d.name)}</span>
+        <span class="t">${TYPEJ[d.type]}${d.levels ? ' BP' + d.levels[0].bp : ''}</span></button>`).join('') + '</div>';
+  }
+  return h + `<div style="margin-top:18px"><button class="btn" data-a="title">タイトルへ</button></div></div>`;
+}
+function renderSim(){
+  const s = UI.sim, r = s.res, S = CA.SETTINGS;
+  let out = '';
+  if(s.running) out = `<div class="metric"><span>実行中…</span><b>${s.done} / ${s.games}</b></div>`;
+  if(r){
+    const pct = x => (x * 100).toFixed(1) + '%';
+    const top = Object.entries(r.flashPlays).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}×${v}`).join('　') || 'なし';
+    out += `
+      <div class="metric hl"><span>先攻勝率</span><b>${pct(r.firstRate)}</b></div>
+      <div class="metric"><span>　（先攻勝ち／決着試合）</span><b>${r.firstWins} / ${r.decided}</b></div>
+      <div class="metric hl"><span>エラー件数（総数）</span><b>${r.errorsTotal}</b></div>
+      <div class="metric"><span>エラーが出た試合／異常終了した試合</span><b>${r.errorGames} / ${r.fatalGames}</b></div>
+      <div class="metric"><span>決着内訳 ライフ0／ドロー失敗</span><b>${r.reasons.life} / ${r.reasons.deckout}</b></div>
+      <div class="metric"><span>平均ターン数</span><b>${r.avgTurns.toFixed(1)}</b></div>
+      <div class="metric"><span>フラッシュ行動 合計（1試合平均）</span><b>${r.flash}（${(r.flash / r.games).toFixed(2)}）</b></div>
+      <div class="metric"><span>アタック中断率</span><b>${r.attacks ? pct(r.aborted / r.attacks) : '-'}</b></div>
+      <div class="metric"><span>20行動上限に到達</span><b>${r.capHits}</b></div>
+      <div class="metric"><span>迅雷フラッシュ召喚</span><b>${r.flashSummons}</b></div>
+      <div class="metric"><span>場のフラッシュ効果 B5／G4</span><b>${r.fx.B5 || 0} / ${r.fx.G4 || 0}</b></div>
+      <div class="metric"><span>オーブ移動（回数）</span><b>${r.moves}</b></div>
+      <div class="metric"><span>バースト セット回数</span><b>${r.burstSets}</b></div>
+      <div class="metric"><span>　条件成立／発動／発動しない／対象なし</span><b>${r.burstChances} / ${r.burstFired} / ${r.burstDeclined} / ${r.burstNoTarget}</b></div>
+      <div class="metric"><span>　発動率（発動÷条件成立）</span><b>${r.burstChances ? pct(r.burstFired / r.burstChances) : '-'}</b></div>
+      <div class="metric"><span>　X3の無料召喚／終了時にセットのまま</span><b>${r.x3Summons} / ${r.burstLeft}</b></div>
+      <div class="sub" style="margin-top:8px">フラッシュ使用：${top}</div>
+      ${r.errList.length ? `<div class="errl">${esc(r.errList.map(e => 'seed ' + e.seed + '\n  ' + e.errors.join('\n  ')).join('\n'))}</div>` : ''}`;
+  }
+  return `<div class="page simf"><h2>自動対戦（隠し機能）</h2>
+    <p class="sub">CPU同士で対戦します。試合iのシード＝開始シード＋i。戦績には記録しません<span class="prov">仮</span></p>
+    <label>開始シード<input type="number" id="simSeed" value="${s.seed}"></label>
+    <label>試合数<input type="number" id="simGames" value="${s.games}" min="1" max="5000"></label>
+    <div class="btns"><button class="btn primary" data-a="simrun" ${s.running ? 'disabled' : ''}>実行</button><button class="btn" data-a="title" ${s.running ? 'disabled' : ''}>タイトルへ</button></div>
+    <div style="margin-top:14px">${out}</div>
+  </div>`;
+}
+
+function cardDetail(d, extra){
+  const lv = d.levels ? d.levels.map(L => `Lv${L.lv}：BP${L.bp}（オーブ${L.cores}）`).join('<br>') : '—';
+  const red = Object.entries(d.reduction || {}).map(([c, n]) => CJ[c] + n).join('・') || 'なし';
+  const eff = CA.describe(d).map(x => `<div>${esc(x.t)}${x.stage ? ` <span class="stage">（${x.stage}）</span>` : ''}</div>`).join('');
+  const tm = d.useTiming.length ? d.useTiming.map(t => t === 'main' ? 'メイン' : 'フラッシュ').join('／') : '—';
+  return `<h3><span class="c-${d.color}" style="color:var(--c)">●</span> ${esc(d.name)}</h3>
+    <p class="note">${d.id}／${CJ[d.color]}・${TYPEJ[d.type]}</p>
+    <dl class="kv"><dt>コスト</dt><dd>${d.cost}</dd><dt>軽減</dt><dd>${red}</dd>
+      <dt>使用</dt><dd>${tm}</dd>${d.levels ? `<dt>レベル</dt><dd>${lv}</dd>` : ''}${extra || ''}</dl>
+    <div class="eff">${eff}</div>`;
+}
+function renderModal(){
+  const g = UI.g, s = UI.sub, pend = UI.pending;
+  if(s){
+    if(s.type === 'detail') return sheet(s.html + (s.actions || '') + `<div class="btns"><button class="btn" data-a="close">閉じる</button></div>`);
+    if(s.type === 'pick'){
+      return sheet(`<h3>${esc(s.def.name)}：対象を選ぶ</h3><p class="note">${esc(CA.effText(s.def.effect))}</p>` +
+        s.cands.map(u => targetRow(g, u)).join('') + `<div class="btns"><button class="btn" data-a="cancel">やめる</button></div>`);
+    }
+    if(s.type === 'pay'){
+      const me = g.players[0];
+      const sum = Object.values(s.alloc).reduce((a, b) => a + b, 0);
+      const rows = me.field.map(u => {
+        const n = s.alloc[u.uid] || 0;
+        return `<div class="row"><span class="dot c-${u.def.color}"></span><span class="nm">${esc(u.def.name)}<small>オーブ${u.orbs}・Lv${CA.level(u)}${n && u.orbs - n <= 0 ? ' <span class="warn">→0個で自壊</span>' : ''}</small></span>
+          <span class="stepper"><button data-a="payDec" data-uid="${u.uid}">−</button><span>${n}</span><button data-a="payInc" data-uid="${u.uid}">＋</button></span></div>`;
+      }).join('');
+      return sheet(`<h3>支払い：${esc(s.def.name)}</h3>
+        <p class="note">支払い${s.pay}のうちストック${me.stock}個を全て使い、残り <b>${s.need}</b> 個をユニットの上から払います（4-2）。オーブが0個になったユニットは自壊します。</p>
+        ${rows}<div class="btns"><button class="btn" data-a="cancel">やめる</button><button class="btn primary" data-a="payOk" ${sum === s.need ? '' : 'disabled'}>支払う（${sum}/${s.need}）</button></div>`);
+    }
+    if(s.type === 'move'){
+      const me = g.players[0];
+      const delta = me.field.reduce((a, u) => a + (s.dist[u.uid] - u.orbs), 0);
+      const left = me.stock - delta;
+      const rows = me.field.map(u => {
+        const n = s.dist[u.uid], lv = CA.levelAt(u.def, n);
+        const nb = n ? CA.bpAtLevel(u.def, lv) : 0;
+        return `<div class="row"><span class="dot c-${u.def.color}"></span><span class="nm">${esc(u.def.name)}<small>${n === 0 ? '<span class="warn">0個 → 自壊</span>' : `Lv${lv}・基本BP${nb}`}${n !== u.orbs ? `（今 ${u.orbs}個）` : ''}</small></span>
+          <span class="stepper"><button data-a="mvDec" data-uid="${u.uid}">−</button><span>${n}</span><button data-a="mvInc" data-uid="${u.uid}"${left > 0 ? '' : ' disabled'}>＋</button></span></div>`;
+      }).join('');
+      return sheet(`<h3>オーブ移動</h3><p class="note">メインステップ中は、ストック⇔ユニット、ユニット同士で自由に動かせます（−で外したオーブはストックへ戻り、別のユニットに＋で載せられます）。0個にしたユニットは自壊します。</p>
+        <div class="metric"><span>ストック</span><b>${left}</b></div>${rows}
+        <div class="btns"><button class="btn" data-a="cancel">やめる</button><button class="btn primary" data-a="mvOk">確定</button></div>`);
+    }
+    if(s.type === 'pickCard'){
+      const me = g.players[0];
+      return sheet(`<h3>${esc(s.title)}</h3><p class="note">${esc(s.note || '')}</p>` + me.hand.map(c =>
+        `<button class="row" data-a="pcard" data-uid="${c.uid}"><span class="dot c-${c.def.color}"></span><span class="nm">${esc(c.def.name)}<small>コスト${c.def.cost}・${TYPEJ[c.def.type]}</small></span></button>`).join('') +
+        `<div class="btns"><button class="btn" data-a="cancel">やめる</button></div>`);
+    }
+    if(s.type === 'log') return sheet(`<h3>対戦ログ</h3><div class="logfull">${esc(g.log.map(l => l.m).join('\n'))}</div><div class="btns"><button class="btn" data-a="close">閉じる</button></div>`, true, 'logsheet');
+    if(s.type === 'settings'){
+      const opt = (v, t, d) => `<button class="row${UI.autoPass === v ? ' ok' : ''}" data-a="ap" data-v="${v}"><span class="nm">${UI.autoPass === v ? '● ' : '○ '}${t}<small>${d}</small></span></button>`;
+      return sheet(`<h3>自動パス設定</h3><p class="note">フラッシュ窓で、自分に優先権が来たときに確認を出すかどうか。</p>
+        ${opt(1, '1：常に確認', '毎回フラッシュ画面を出す')}
+        ${opt(2, '2：使える行動があるときだけ確認（標準）', '使えるカード・効果がなければ自動でパス')}
+        ${opt(3, '3：負けに直結する場面だけ確認', '防御側でライフ1、このままだとライフに通るときだけ（仮の定義）')}
+        <div class="btns"><button class="btn" data-a="close">閉じる</button></div>`);
+    }
+    if(s.type === 'stats'){
+      const v = loadSave();
+      return sheet(`<h3>戦績</h3><dl class="kv"><dt>総勝利数</dt><dd>${v.totalWins}</dd><dt>総対戦数</dt><dd>${v.totalGames}</dd><dt>最大連勝</dt><dd>${v.maxStreak}</dd><dt>現在の連勝</dt><dd>${v.streak}</dd></dl><div class="btns"><button class="btn" data-a="close">閉じる</button></div>`);
+    }
+  }
+  if(!pend || UI.screen !== 'battle') return '';
+  if(pend.kind === 'burst'){
+    const d = pend.data.def;
+    return sheet(`<h3>バースト発動？（条件${pend.data.cond}）</h3><p class="note">${pend.data.cond === 'A' ? 'あなたのライフが減りました。' : 'あなたのユニットが相手の効果で場を離れました。'}発動しなければ、セットしたまま残ります。発動中は相手は割り込めません。</p>
+      <div class="eff"><b>${esc(d.name)}</b><br>${esc(CA.describe(d).map(x => x.t).join(' '))}</div>
+      <div class="btns"><button class="btn" data-a="bNo">発動しない</button><button class="btn primary" data-a="bYes">発動する</button></div>`);
+  }
+  if(pend.kind === 'burstSummon'){
+    const d = pend.data.def;
+    return sheet(`<h3>${esc(d.name)}を無料で召喚する？</h3><p class="note">ストックからオーブ1個を載せて召喚します。召喚しない場合は手札に戻ります。</p>
+      <div class="btns"><button class="btn" data-a="bNo">召喚しない（手札へ）</button><button class="btn primary" data-a="bYes">召喚する</button></div>`);
+  }
+  if(pend.kind === 'target'){
+    return sheet(`<h3>${esc(pend.data.def.name)}：${pend.data.def.burst && !CA.isUnitDef(pend.data.def) ? 'バーストの対象' : '召喚時効果の対象'}</h3><p class="note">${esc(CA.effText(pend.data.def.effect))}</p>` + pend.data.cands.map(u => targetRow(g, u, 'tgtE')).join(''));
+  }
+  if(pend.kind === 'block'){
+    const att = pend.data.att, A = CA.bp(g, att), me = g.players[0];
+    const rows = pend.data.cands.map(u => {
+      const v = CA.bp(g, u); const res = v > A ? '勝ち' : v === A ? '相打ち' : '負け';
+      return `<button class="row${v > A ? ' ok' : ''}" data-a="blk" data-uid="${u.uid}"><span class="dot c-${u.def.color}"></span><span class="nm">${esc(u.def.name)}<small>BP${v}・Lv${CA.level(u)}</small></span><span class="tag"${v > A ? '' : ' style="color:var(--danger)"'}>${res}</span></button>`;
+    }).join('');
+    return sheet(`<h3>ブロック宣言</h3><p class="note">相手の ${esc(att.def.name)}（BP${A}）がアタック中。ブロックしたユニットも疲労します。</p>${rows}
+      <button class="pass" data-a="blk" data-uid="none">ブロックしない（ライフ−1 → 残り${me.life - 1}）</button>`);
+  }
+  if(pend.kind === 'flash'){
+    const me = g.players[0], b = g.battle, w = pend.data.w;
+    const att = CA.findUnit(g, b.attacker), blk = b.blocker ? CA.findUnit(g, b.blocker) : null;
+    const role = me.idx === b.atkOwner ? '攻撃側' : '防御側';
+    const list = me.hand.map(c => ({c, k: CA.checkPlay(g, me, c, 'flash', null)})).sort((x, y) => (y.k.ok ? 1 : 0) - (x.k.ok ? 1 : 0));
+    const rows = list.map(({c, k}) => k.ok
+      ? `<button class="row ok" data-a="use" data-uid="${c.uid}"><span class="dot c-${c.def.color}"></span><span class="nm">${esc(c.def.name)}<small>${CA.isUnitDef(c.def) ? `迅雷で召喚・BP${c.def.levels[0].bp}` + (c.def.effect ? '・' : '') : ''}${esc(CA.effText(c.def.effect))}</small></span><span class="tag">支払い${k.pay}</span></button>`
+      : `<div class="row ng"><span class="dot c-${c.def.color}"></span><span class="nm">${esc(c.def.name)}</span><span class="rs">${esc(k.reason)}</span></div>`).join('');
+    const fxRows = me.field.filter(u => u.def.flashEffect).map(u => { const k = CA.checkFx(g, me, u); return k.ok
+      ? `<button class="row ok" data-a="fx" data-uid="${u.uid}"><span class="dot c-${u.def.color}"></span><span class="nm">場：${esc(u.def.name)}の効果<small>${esc(CA.effText(u.def.flashEffect))}</small></span><span class="tag">無料</span></button>`
+      : `<div class="row ng"><span class="dot c-${u.def.color}"></span><span class="nm">場：${esc(u.def.name)}の効果</span><span class="rs">${esc(k.reason)}</span></div>`; }).join('');
+    return sheet(`<h3>フラッシュ ${w}<span style="font-size:12px;color:var(--muted);font-weight:400">　${w === 'W1' ? 'ブロック宣言の前' : 'ブロック宣言の後・解決の前'}</span></h3>
+      <p class="note">あなたに優先権（${role}）。行動すると優先権は相手へ。両者が続けてパスすると窓が閉じます。</p>
+      <div class="vs"><div><b>アタッカー（${g.players[b.atkOwner].name}）</b>${att ? esc(att.def.name) : '—'}<div class="big">${att ? CA.bp(g, att) : '—'}</div></div>
+        <div><b>ブロッカー</b>${blk ? esc(blk.def.name) : (b.blocker ? '離脱' : (w === 'W1' ? '未宣言' : 'なし'))}<div class="big">${blk ? CA.bp(g, blk) : '—'}</div></div></div>
+      ${fxRows}${rows || '<p class="note">手札なし</p>'}
+      <button class="pass" data-a="pass">パス</button>`);
+  }
+  return '';
+}
+function targetRow(g, u, a){
+  const own = g.players[u.owner].name;
+  return `<button class="row ok" data-a="${a || 'tgt'}" data-uid="${u.uid}"><span class="dot c-${u.def.color}"></span><span class="nm">${esc(u.def.name)}<small>${esc(own)}・BP${CA.bp(g, u)}・Lv${CA.level(u)}${u.tapped ? '・疲労' : ''}</small></span></button>`;
+}
+function sheet(inner, full, id){ return `<div class="ov" data-a="ovbg"><div class="sheet${full ? ' full' : ''}"${id ? ` id="${id}"` : ''}>${inner}</div></div>`; }
+
+// ---------- 操作 ----------
+const H = {
+  start(){ startBattle(); },
+  title(){ UI.screen = 'title'; UI.sub = null; UI.g = null; UI.pending = null; render(); },
+  cards(){ UI.screen = 'cards'; render(); },
+  stats(){ UI.sub = {type: 'stats'}; render(); },
+  logo(){
+    const now = Date.now(); UI.logoTaps = UI.logoTaps.filter(t => now - t < 3000); UI.logoTaps.push(now);
+    if(UI.logoTaps.length >= 5){ UI.logoTaps = []; UI.screen = 'sim'; render(); }
+  },
+  carddef(el){ UI.sub = {type: 'detail', html: cardDetail(CA.DEF[el.dataset.id])}; render(); },
+  hand(el){
+    const g = UI.g, me = g.players[0], uid = +el.dataset.uid, c = me.hand.find(x => x.uid === uid); if(!c) return;
+    const pend = UI.pending;
+    const extra = c.def.type !== 'burst' ? `<dt>今の支払い</dt><dd>${CA.paymentFor(me, c.def)}（軽減${CA.reductionOf(me, c.def)}）</dd>` : '';
+    let actions = '';
+    if(pend && (pend.kind === 'main' || pend.kind === 'flash')){
+      const k = CA.checkPlay(g, me, c, pend.kind, null);
+      const ks = c.def.burst && pend.kind === 'main' ? CA.checkSet(g, me, c) : null;
+      const bt = [];
+      if(k.ok) bt.push(`<button class="btn primary" data-a="use" data-uid="${uid}">${CA.isUnitDef(c.def) ? '召喚する' : c.def.type === 'area' ? '設置する' : '使う'}</button>`);
+      if(ks && ks.ok) bt.push(`<button class="btn" data-a="setb" data-uid="${uid}">バーストとしてセット</button>`);
+      actions = (bt.length ? `<div class="btns">${bt.join('')}</div>` : '') +
+        (!k.ok && c.def.type !== 'burst' ? `<p class="note warn">使えない：${esc(k.reason)}</p>` : '') +
+        (ks && !ks.ok ? `<p class="note warn">セットできない：${esc(ks.reason)}</p>` : '');
+    }
+    UI.sub = {type: 'detail', html: cardDetail(c.def, extra), actions}; render();
+  },
+  unit(el){
+    const g = UI.g, u = CA.findUnit(g, +el.dataset.uid); if(!u) return;
+    const mods = u.mods.map(m => `+${m.value}（${m.until === 'turn' ? 'このターン' : 'このバトル'}）`).join('、') || 'なし';
+    const extra = `<dt>持ち主</dt><dd>${esc(g.players[u.owner].name)}</dd><dt>現在</dt><dd>Lv${CA.level(u)}・BP${CA.bp(g, u)}・オーブ${u.orbs}${u.tapped ? '・疲労' : ''}</dd><dt>BP修正</dt><dd>${mods}</dd>`;
+    UI.sub = {type: 'detail', html: cardDetail(u.def, extra)}; render();
+  },
+  areainfo(el){ const p = UI.g.players[+el.dataset.p]; if(p.area){ UI.sub = {type: 'detail', html: cardDetail(p.area.def)}; render(); } },
+  use(el){ humanPlay(+el.dataset.uid); },
+  setb(el){ if(UI.pending && UI.pending.kind === 'main') answer({type: 'set', uid: +el.dataset.uid}); },
+  burstinfo(){ const p = UI.g.players[0]; if(p.burst){ UI.sub = {type: 'detail', html: cardDetail(p.burst.def, '<dt>状態</dt><dd>裏向きでセット中</dd>')}; render(); } },
+  bYes(){ if(UI.pending && (UI.pending.kind === 'burst' || UI.pending.kind === 'burstSummon')) answer(true); },
+  bNo(){ if(UI.pending && (UI.pending.kind === 'burst' || UI.pending.kind === 'burstSummon')) answer(false); },
+  settings(){ UI.sub = {type: 'settings'}; render(); },
+  ap(el){ UI.autoPass = +el.dataset.v; const s = loadSave(); s.autoPass = UI.autoPass; writeSave(s); render(); },
+  async fx(el){
+    const g = UI.g, me = g.players[0], pend = UI.pending; if(!pend || pend.kind !== 'flash') return;
+    const u = me.field.find(x => x.uid === +el.dataset.uid); if(!u || !CA.checkFx(g, me, u).ok) return;
+    let discard;
+    if(u.def.flashEffect.kind === 'discard_draw'){
+      discard = await subPromise({type: 'pickCard', title: `${u.def.name}：捨てるカードを選ぶ`, note: me.deck.length ? '捨てた後に1枚引きます。' : '山札が0枚です。引けないとその場で敗北します。'});
+      if(discard == null){ UI.sub = null; render(); return; }
+    }
+    if(UI.pending !== pend) return;
+    answer({type: 'fx', uid: u.uid, discard});
+  },
+  pcard(el){ const s = UI.sub; if(s && s.type === 'pickCard'){ UI.sub = null; s.res(+el.dataset.uid); } },
+  async move(){
+    const g = UI.g, me = g.players[0], pend = UI.pending; if(!pend || pend.kind !== 'main' || !me.field.length) return;
+    const dist = {}; for(const u of me.field) dist[u.uid] = u.orbs;
+    const r = await subPromise({type: 'move', dist});
+    if(!r){ UI.sub = null; render(); return; }
+    if(UI.pending !== pend) return;
+    answer({type: 'move', dist: r});
+  },
+  mvInc(el){ const s = UI.sub, me = UI.g.players[0]; if(!s || s.type !== 'move') return;
+    const delta = me.field.reduce((a, u) => a + (s.dist[u.uid] - u.orbs), 0);
+    if(me.stock - delta > 0){ s.dist[+el.dataset.uid]++; render(); } },
+  mvDec(el){ const s = UI.sub; if(!s || s.type !== 'move') return; const k = +el.dataset.uid; if(s.dist[k] > 0){ s.dist[k]--; render(); } },
+  mvOk(){ const s = UI.sub; if(!s || s.type !== 'move') return; UI.sub = null; s.res(Object.assign({}, s.dist)); },
+  toAttack(){ if(UI.pending && UI.pending.kind === 'main') answer({type: 'end'}); },
+  endTurn(){ if(UI.pending && UI.pending.kind === 'attack') answer({type: 'end'}); },
+  atk(el){ if(UI.pending && UI.pending.kind === 'attack') answer({type: 'attack', uid: +el.dataset.uid}); },
+  blk(el){ if(UI.pending && UI.pending.kind === 'block') answer(el.dataset.uid === 'none' ? null : +el.dataset.uid); },
+  pass(){ if(UI.pending && UI.pending.kind === 'flash') answer({type: 'pass'}); },
+  tgt(el){ const s = UI.sub; if(s && s.type === 'pick'){ UI.sub = null; s.res(+el.dataset.uid); } },
+  tgtE(el){ if(UI.pending && UI.pending.kind === 'target') answer(+el.dataset.uid); },
+  cancel(){ const s = UI.sub; UI.sub = null; if(s && s.res) s.res(null); render(); },
+  close(){ UI.sub = null; render(); },
+  ovbg(el, e){ if(e.target === el && UI.sub && (UI.sub.type === 'detail' || UI.sub.type === 'log' || UI.sub.type === 'stats')){ UI.sub = null; render(); } },
+  log(){ if(UI.g){ UI.sub = {type: 'log'}; render(); const el = document.getElementById('logsheet'); if(el) el.scrollTop = el.scrollHeight; } },
+  payInc(el){ const s = UI.sub, me = UI.g.players[0], u = me.field.find(x => x.uid === +el.dataset.uid); if(!s || !u) return;
+    const sum = Object.values(s.alloc).reduce((a, b) => a + b, 0); const n = s.alloc[u.uid] || 0;
+    if(n < u.orbs && sum < s.need){ s.alloc[u.uid] = n + 1; render(); } },
+  payDec(el){ const s = UI.sub; const k = +el.dataset.uid; if(s && s.alloc[k]){ s.alloc[k]--; render(); } },
+  payOk(){ const s = UI.sub; if(!s) return; const sum = Object.values(s.alloc).reduce((a, b) => a + b, 0); if(sum !== s.need) return; UI.sub = null; s.res(Object.assign({}, s.alloc)); },
+  async simrun(){
+    const s = UI.sim; if(s.running) return;
+    s.seed = parseInt(document.getElementById('simSeed').value, 10) || 0;
+    s.games = Math.max(1, Math.min(5000, parseInt(document.getElementById('simGames').value, 10) || 100));
+    s.running = true; s.done = 0; s.res = null; render();
+    try{
+      s.res = await CA.runSim({seed: s.seed, games: s.games, onProgress: async (n) => { s.done = n; render(); await sleep(0); }});
+    } finally { s.running = false; render(); }
+  }
+};
+$app.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if(!el) return;
+  const fn = H[el.dataset.a]; if(fn) fn(el, e);
+});
+UI.autoPass = [1, 2, 3].includes(loadSave().autoPass) ? loadSave().autoPass : 2;
+if(location.hash === '#sim') UI.screen = 'sim';
+render();
+})();
+</script>
+</body>
+</html>
