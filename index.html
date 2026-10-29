@@ -164,21 +164,21 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
   {"id":"B3","name":"霧隠れの忍者","type":"unit","color":"blue","cost":4,"reduction":{"blue":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":2,"bp":4000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":{"kind":"bounce","timing":"on_summon","target":{"owner":"opponent","type":"unit","maxBp":3000}},"flashEffect":null,"burst":null},
   {"id":"B4","name":"深海のクラーケン","type":"unit","color":"blue","cost":6,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":4000},{"lv":2,"cores":3,"bp":7000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"bounce","timing":"on_summon","target":{"owner":"opponent","type":"unit","maxBp":4000}},"flashEffect":null,"burst":null},
   {"id":"B5","name":"蒼玉の賢者","type":"unit","color":"blue","cost":5,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"draw","timing":"on_summon","value":1},"flashEffect":{"kind":"discard_draw","oncePerBattle":true,"discard":1,"value":1},"burst":null},
-  {"id":"G1","name":"芽吹きの精霊","type":"unit","color":"green","cost":2,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":1000},{"lv":2,"cores":2,"bp":2000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
+  {"id":"G1","name":"芽吹きの精霊","type":"unit","color":"green","cost":2,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":1000},{"lv":2,"cores":2,"bp":2000}],"symbol":1,"keywords":["jinrai"],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
   {"id":"G2","name":"森守りのトレント","type":"unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":6000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
-  {"id":"G3","name":"大樹の古竜","type":"unit","color":"green","cost":7,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":5000},{"lv":2,"cores":4,"bp":9000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":2},"flashEffect":null,"burst":null},
-  {"id":"G4","name":"豊穣の角獣","type":"unit","color":"green","cost":4,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":3,"bp":4000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_boost","timing":"on_summon","value":1},"flashEffect":{"kind":"self_core_add","oncePerBattle":true,"value":2,"partial":true},"burst":null},
+  {"id":"G3","name":"大樹の古竜","type":"unit","color":"green","cost":7,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":5000},{"lv":2,"cores":4,"bp":9000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_summon","value":2},"flashEffect":null,"burst":null},
+  {"id":"G4","name":"豊穣の角獣","type":"unit","color":"green","cost":4,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":3,"bp":4000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_summon","value":1},"flashEffect":{"kind":"self_core_add","oncePerTurn":true,"value":2},"burst":null},
   {"id":"M1","name":"フレイムバースト","type":"magic","color":"red","cost":3,"reduction":{"red":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"destroy","timing":"on_use","target":{"owner":"opponent","type":"unit","maxBp":4000}},"flashEffect":null,"burst":null},
   {"id":"M2","name":"タイダルウェーブ","type":"magic","color":"blue","cost":4,"reduction":{"blue":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"bounce","timing":"on_use","target":{"owner":"opponent","type":"unit"}},"flashEffect":null,"burst":null},
-  {"id":"M3","name":"オーブチャージ","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_charge","timing":"on_use","value":2},"flashEffect":null,"burst":null},
+  {"id":"M3","name":"オーブチャージ","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_use","value":2},"flashEffect":null,"burst":null},
   {"id":"M4","name":"パワーサージ","type":"magic","color":"none","cost":2,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"bp_up","timing":"on_use","value":3000,"duration":"turn","target":{"owner":"self","type":"unit"}},"flashEffect":null,"burst":null},
   {"id":"M5","name":"氷結の封印","type":"magic","color":"blue","cost":3,"reduction":{"blue":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"exhaust","timing":"on_use","target":{"owner":"opponent","type":"unit","state":"untapped"}},"flashEffect":null,"burst":null},
-  {"id":"M6","name":"命脈の循環","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"core_charge","timing":"on_use","value":2},"flashEffect":null,"burst":null},
+  {"id":"M6","name":"命脈の循環","type":"magic","color":"green","cost":2,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"core_add","timing":"on_use","value":2},"flashEffect":null,"burst":null},
   {"id":"N1","name":"紅蓮の戦場","type":"area","color":"red","cost":3,"reduction":{"red":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"red"},"flashEffect":null,"burst":null},
   {"id":"N2","name":"静かなる泉","type":"area","color":"blue","cost":3,"reduction":{"blue":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"blue"},"flashEffect":null,"burst":null},
   {"id":"X1","name":"烈火の反撃","type":"burst","color":"red","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"destroy","target":{"owner":"opponent","type":"unit","maxBp":6000}}}},
   {"id":"X2","name":"時戻しの渦","type":"burst","color":"blue","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"bounce","target":{"owner":"opponent","type":"unit"}}}},
-  {"id":"X3","name":"森の番人","type":"burst_unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":{"condition":"own_unit_removed_by_opponent_effect","effect":{"kind":"core_charge","value":2},"afterSummon":{"cost":0,"placeCoresFromStock":1,"ifFieldFull":"return_to_hand"}}}
+  {"id":"X3","name":"森の番人","type":"burst_unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":{"condition":"own_unit_removed_by_opponent","effect":{"kind":"core_add","value":2},"afterSummon":{"cost":0,"placeCoresFromStock":1,"ifFieldFull":"return_to_hand"}}}
 ]
 </script>
 
@@ -302,7 +302,8 @@ function drawN(g, p, n){
     p.hand.push(p.deck.pop());
   }
 }
-function coreMove(g, p, v){ const n = Math.min(v, p.recovery); p.recovery -= n; p.stock += n; log(g, `${p.name}：回収待ち${n}個→ストック`); }
+// ボイド（ゲーム外）からストックへ追加。ゲーム内のオーブ総量が増える（7章 core_add）
+function coreAdd(g, p, v){ p.stock += v; p.orbTotal += v; g.stats.voidAdded += v; log(g, `${p.name}：ボイドから${v}個をストックへ追加`); }
 
 function targetCandidates(g, p, eff){
   const t = eff && eff.target; if(!t) return null;
@@ -342,7 +343,7 @@ function checkPlay(g, p, card, timing, target, opts){
 function applyEffect(g, p, e, t){
   switch(e.kind){
     case 'draw': drawN(g, p, e.value); log(g, `${p.name}：${e.value}枚引く`); break;
-    case 'core_boost': case 'core_charge': coreMove(g, p, e.value); break;
+    case 'core_add': coreAdd(g, p, e.value); break;
     case 'destroy': if(t.owner !== p.idx) g.pendingB.add(t.owner); leaveField(g, t, 'trash', 'effect'); break;
     case 'bounce': if(t.owner !== p.idx) g.pendingB.add(t.owner); leaveField(g, t, 'hand', 'effect'); break;
     case 'exhaust': t.tapped = true; log(g, `${g.players[t.owner].name}の${t.def.name}：疲労`); break;
@@ -442,6 +443,7 @@ function checkFx(g, p, u){
   if(!g.battle) return no('フラッシュ窓の外');
   if(u.owner !== p.idx || !p.field.includes(u)) return no('自分の場のユニットではない');
   if(f.oncePerBattle && u.fxBattle === g.battle.id) return no('このバトルでは使用済み');
+  if(f.oncePerTurn && u.fxTurn === g.turn) return no('このターンでは使用済み');
   if(f.kind === 'discard_draw' && p.hand.length < (f.discard || 1)) return no('捨てる手札がない');
   return {ok: true};
 }
@@ -453,15 +455,15 @@ function applyFx(g, p, act){
   if(f.kind === 'discard_draw'){
     const c = p.hand.find(x => x.uid === act.discard);
     if(!c) throw new RuleError('捨てるカードの指定が不正');
-    u.fxBattle = g.battle.id;
+    u.fxBattle = g.battle.id; u.fxTurn = g.turn;
     p.hand.splice(p.hand.indexOf(c), 1); p.trash.push(c);
     log(g, `${p.name}：${u.def.name}のフラッシュ効果 → ${c.def.name}を捨てる`);
     drawN(g, p, f.value); log(g, `${p.name}：${f.value}枚引く`);
   } else if(f.kind === 'self_core_add'){
-    u.fxBattle = g.battle.id;
-    const n = Math.min(f.value, p.recovery);
-    p.recovery -= n; u.orbs += n;
-    log(g, `${p.name}：${u.def.name}のフラッシュ効果 → 回収待ち${n}個をこのユニットへ（Lv${level(u)}・BP${bp(g, u)}）`);
+    u.fxBattle = g.battle.id; u.fxTurn = g.turn;
+    const n = f.value;
+    u.orbs += n; p.orbTotal += n; g.stats.voidAdded += n;
+    log(g, `${p.name}：${u.def.name}のフラッシュ効果 → ボイドから${n}個をこのユニットへ（Lv${level(u)}・BP${bp(g, u)}）`);
   } else throw new FatalError('未対応のフラッシュ効果: ' + f.kind);
   g.stats.fx[u.id] = (g.stats.fx[u.id] || 0) + 1;
   checkInv(g); upd(g);
@@ -488,7 +490,7 @@ function applyMove(g, p, act){
 }
 
 // ---------- バースト（6章） ----------
-const BURST_COND = {life_lost: 'A', own_unit_removed_by_opponent_effect: 'B'};
+const BURST_COND = {life_lost: 'A', own_unit_removed_by_opponent: 'B'};
 function checkSet(g, p, card){
   const no = reason => ({ok: false, reason});
   if(!card.def.burst) return no('バースト条件を持たないカードはセットできない');
@@ -560,7 +562,7 @@ async function tryBurst(g, p, cond){
 async function flushBurstB(g){
   while(g.pendingB.size){
     const idx = g.pendingB.values().next().value; g.pendingB.delete(idx);
-    await tryBurst(g, g.players[idx], 'own_unit_removed_by_opponent_effect');
+    await tryBurst(g, g.players[idx], 'own_unit_removed_by_opponent');
   }
 }
 
@@ -627,6 +629,9 @@ async function doAttack(g, p, u){
     if(blk && !g.battle.blockerGone){
       const a = bp(g, u), b = bp(g, blk);
       log(g, `BP比較：${u.def.name} ${a} vs ${blk.def.name} ${b}`);
+      // 変更2：相手とのバトルでの破壊（相打ち含む）も条件B。両者なら防御側から確認 [新B#1]
+      if(b <= a){ g.pendingB.add(d.idx); }
+      if(a <= b){ g.pendingB.add(p.idx); }
       if(a > b) leaveField(g, blk, 'trash', 'battle');
       else if(b > a) leaveField(g, u, 'trash', 'battle');
       else { leaveField(g, u, 'trash', 'battle'); leaveField(g, blk, 'trash', 'battle'); }
@@ -635,6 +640,7 @@ async function doAttack(g, p, u){
       lifeHit = true;
     }
     clearMods(g, 'battle');                                         // 「このバトル中」はBP比較・破壊判定の後に消える
+    if(g.pendingB.size){ g.battle.window = 'burst'; checkInv(g); upd(g); await flushBurstB(g); }
     if(lifeHit){
       d.life--; d.recovery++; g.stats.lifeHits++;
       log(g, `${d.name}のライフ−1（残り${d.life}）`);
@@ -677,14 +683,15 @@ async function runTurn(g){
   log(g, `── ターン${g.turn}：${p.name} ──`);
   g.phase = 'core';
   p.stock += 1; p.orbTotal += 1;
-  let back = 0; if(p.recovery > 0){ p.recovery--; p.stock++; back = 1; }
-  log(g, `コアステップ：新規オーブ+1／回収待ち→ストック ${back}`);
+  log(g, 'コアステップ：新規オーブ+1');
   checkInv(g); upd(g);
   g.phase = 'draw';
   const n = (p.idx !== g.first && p.turnsTaken === 1) ? 2 : 1;
   drawN(g, p, n); log(g, `ドロー ${n}枚`); upd(g);
   g.phase = 'refresh';
-  for(const u of p.field) u.tapped = false; upd(g);
+  for(const u of p.field) u.tapped = false;
+  const back = p.recovery; p.stock += back; p.recovery = 0;     // 変更1：回収待ちを全てストックへ
+  log(g, `リフレッシュ：全ユニット回復／回収待ち${back}個→ストック`); upd(g);
   g.phase = 'main'; await mainStep(g, p);
   g.phase = 'attack';
   if(p.idx === g.first && p.turnsTaken === 1) log(g, '先攻の最初のターンはアタックできない（アタックステップなし）');   // 決定5／4-1
@@ -712,7 +719,7 @@ function newGame(o){
     over: false, winner: null, reason: null, log: [], errors: [], agents: o.agents, onUpdate: o.onUpdate || null,
     delay: o.delay || null, logLimit: o.logLimit || 3000, pendingB: new Set(), burstDepth: 0,
     stats: {flashActions: 0, attacks: 0, aborted: 0, lifeHits: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {}, plays: {}, flashPlays: {},
-      burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstFiredBy: {}}};
+      burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstFiredBy: {}, voidAdded: 0}};
   for(let i = 0; i < 2; i++){
     const p = {idx: i, name: o.names ? o.names[i] : 'P' + (i + 1), life: 5, stock: 4, recovery: 0,
       deck: [], hand: [], field: [], area: null, burst: null, trash: [], orbTotal: 9, turnsTaken: 0};
@@ -796,8 +803,8 @@ const CPU = {
   main(g, p){
     const o = opp(g, p);
     const can = (c, t) => cpuCan(g, p, c, 'main', t);
-    // 1. M3/M6（core_charge）：回収待ち2個以上
-    if(p.recovery >= 2){ const c = p.hand.find(c => magicKind(c, 'core_charge') && can(c)); if(c) return cpuAct(g, p, c); }
+    // 1. M3/M6（core_add）：あれば先に使う
+    { const c = p.hand.find(c => magicKind(c, 'core_add') && can(c)); if(c) return cpuAct(g, p, c); }
     // 2. バーストのセット（通常の召喚・使用を妨げない範囲）[新F3#9]
     if(!p.burst){
       const bs = p.hand.filter(c => c.def.burst && !(isUnitDef(c.def) && can(c)));
@@ -843,7 +850,7 @@ const CPU = {
   // 有効な対象がある／X3の召喚まで繋がる場合は発動
   burst(g, p, def){
     if(def.burst.afterSummon){
-      const after = p.stock + Math.min(def.burst.effect.value || 0, p.recovery);
+      const after = p.stock + (def.burst.effect.kind === 'core_add' ? def.burst.effect.value : 0);
       return p.field.length < 5 && after >= (def.burst.afterSummon.placeCoresFromStock || 1);
     }
     return burstUsable(g, p, def);
@@ -865,7 +872,7 @@ const CPU = {
       for(const u of p.field){
         const f = u.def.flashEffect;
         if(!f || f.kind !== 'self_core_add' || !checkFx(g, p, u).ok || level(u) >= 2) continue;
-        const after = u.orbs + Math.min(f.value, p.recovery);
+        const after = u.orbs + f.value;
         if(levelAt(u.def, after) !== 2) continue;
         const now = bp(g, u), nb = now + bpAtLevel(u.def, 2) - baseBp(u);
         let change = false;
@@ -935,7 +942,7 @@ const CPU = {
 async function runSim(o){
   const r = {games: o.games, seed: o.seed, decided: 0, firstWins: 0, errorGames: 0, errorsTotal: 0, fatalGames: 0,
     turns: 0, flash: 0, attacks: 0, aborted: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {},
-    burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {}};
+    burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, voidAdded: 0, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {}};
   for(let i = 0; i < o.games; i++){
     const g = newGame({seed: (o.seed + i) >>> 0, agents: [CPU, CPU], names: ['P1', 'P2'], logLimit: 120});
     await runGame(g);
@@ -944,7 +951,7 @@ async function runSim(o){
     for(const [k, v] of Object.entries(g.stats.flashPlays)) r.flashPlays[k] = (r.flashPlays[k] || 0) + v;
     for(const [k, v] of Object.entries(g.stats.fx)) r.fx[k] = (r.fx[k] || 0) + v;
     r.flashSummons += g.stats.flashSummons; r.moves += g.stats.moves;
-    for(const k of ['burstSets', 'burstChances', 'burstFired', 'burstDeclined', 'burstNoTarget', 'x3Summons']) r[k] += g.stats[k];
+    for(const k of ['burstSets', 'burstChances', 'burstFired', 'burstDeclined', 'burstNoTarget', 'x3Summons', 'voidAdded']) r[k] += g.stats[k];
     for(const [k, v] of Object.entries(g.stats.burstFiredBy)) r.burstFiredBy[k] = (r.burstFiredBy[k] || 0) + v;
     r.burstLeft += g.players.filter(q => q.burst).length;
     if(g.errors.length){ r.errorGames++; r.errorsTotal += g.errors.length; if(r.errList.length < 30) r.errList.push({seed: g.seed, errors: g.errors.slice(0, 5)}); }
@@ -965,15 +972,14 @@ function effText(e){
   const pre = e.timing === 'on_summon' ? '召喚時：' : '';
   switch(e.kind){
     case 'draw': return pre + `${e.value}枚引く`;
-    case 'core_boost': return pre + `回収待ち${e.value}個→ストック`;
-    case 'core_charge': return pre + `回収待ちから${e.value}個をストックへ`;
+    case 'core_add': return pre + `ボイドから${e.value}個をストックへ追加`;
     case 'attack_bp_up': return `アタック時 BP+${e.value}`;
     case 'bp_up': return pre + targetText(e.target) + `を${e.duration === 'turn' ? 'このターン' : 'このバトル中'} BP+${e.value}`;
     case 'destroy': return pre + (e.target ? targetText(e.target) : '') + 'を破壊';
     case 'bounce': return pre + (e.target ? targetText(e.target) : '') + 'を手札に戻す';
     case 'exhaust': return pre + targetText(e.target) + 'を疲労させる';
     case 'field_bp_up': return `自分の${CJ[e.targetColor]}ユニット全て BP+${e.value}`;
-    case 'self_core_add': return `回収待ちから${e.value}個をこのユニットに追加${e.partial ? '（ある分だけ）' : ''}`;
+    case 'self_core_add': return `ボイドから${e.value}個をこのユニットに追加`;
     case 'discard_draw': return `手札${e.discard}枚を捨てる→${e.value}枚引く`;
   }
   return e.kind;
@@ -982,10 +988,10 @@ function describe(d){
   const L = [];
   if(d.keywords.includes('jinrai')) L.push({t: '迅雷（フラッシュ中に召喚できる）'});
   if(d.effect) L.push({t: effText(d.effect)});
-  if(d.flashEffect) L.push({t: `[フラッシュ／1バトル1回] ${effText(d.flashEffect)}`});
+  if(d.flashEffect) L.push({t: `[フラッシュ／${d.flashEffect.oncePerTurn ? 'ターンに1回' : '1バトル1回'}] ${effText(d.flashEffect)}`});
   if(d.type === 'area') L.push({t: `${CJ[d.color]}シンボル${d.symbol}個を持つ`});
   if(d.burst){
-    const c = d.burst.condition === 'life_lost' ? 'A：自分のライフが減ったとき' : 'B：自分のユニットが相手の効果で離脱したとき';
+    const c = d.burst.condition === 'life_lost' ? 'A：自分のライフが減ったとき' : 'B：自分のユニットが相手によって場を離れたとき（効果・バトル、相打ち含む）';
     L.push({t: `[バースト ${c}] ${effText(d.burst.effect)}${d.burst.afterSummon ? '。その後、無料で召喚できる（場が満杯なら手札へ）' : ''}`});
   }
   if(!L.length) L.push({t: '効果なし'});
@@ -1096,7 +1102,7 @@ function render(){
 function renderTitle(){
   return `<div class="title">
     <div class="logo" data-a="logo"><div class="l1">CORE</div><div class="l2">ABYSS</div><div class="kari">（仮タイトル）</div></div>
-    <div class="sub">F3ビルド：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
+    <div class="sub">F3＋バランス変更（2026-10-30）：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
     <button class="btn primary" data-a="start">バトル開始</button>
     <button class="btn" data-a="cards">カード一覧</button>
     <button class="btn" data-a="stats">戦績</button>
@@ -1218,6 +1224,7 @@ function renderSim(){
       <div class="metric"><span>迅雷フラッシュ召喚</span><b>${r.flashSummons}</b></div>
       <div class="metric"><span>場のフラッシュ効果 B5／G4</span><b>${r.fx.B5 || 0} / ${r.fx.G4 || 0}</b></div>
       <div class="metric"><span>オーブ移動（回数）</span><b>${r.moves}</b></div>
+      <div class="metric"><span>ボイドから追加されたオーブ（1試合平均）</span><b>${(r.voidAdded / r.games).toFixed(1)}</b></div>
       <div class="metric"><span>バースト セット回数</span><b>${r.burstSets}</b></div>
       <div class="metric"><span>　条件成立／発動／発動しない／対象なし</span><b>${r.burstChances} / ${r.burstFired} / ${r.burstDeclined} / ${r.burstNoTarget}</b></div>
       <div class="metric"><span>　発動率（発動÷条件成立）</span><b>${r.burstChances ? pct(r.burstFired / r.burstChances) : '-'}</b></div>
@@ -1302,7 +1309,7 @@ function renderModal(){
   if(!pend || UI.screen !== 'battle') return '';
   if(pend.kind === 'burst'){
     const d = pend.data.def;
-    return sheet(`<h3>バースト発動？（条件${pend.data.cond}）</h3><p class="note">${pend.data.cond === 'A' ? 'あなたのライフが減りました。' : 'あなたのユニットが相手の効果で場を離れました。'}発動しなければ、セットしたまま残ります。発動中は相手は割り込めません。</p>
+    return sheet(`<h3>バースト発動？（条件${pend.data.cond}）</h3><p class="note">${pend.data.cond === 'A' ? 'あなたのライフが減りました。' : 'あなたのユニットが相手によって場を離れました。'}発動しなければ、セットしたまま残ります。発動中は相手は割り込めません。</p>
       <div class="eff"><b>${esc(d.name)}</b><br>${esc(CA.describe(d).map(x => x.t).join(' '))}</div>
       <div class="btns"><button class="btn" data-a="bNo">発動しない</button><button class="btn primary" data-a="bYes">発動する</button></div>`);
   }
