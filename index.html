@@ -6,9 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CORE ABYSS">
+<meta name="apple-mobile-web-app-title" content="深淵環オルビア">
 <meta name="theme-color" content="#0a0c13">
-<title>CORE ABYSS（仮）</title>
+<title>深淵環オルビア</title>
 <style>
 :root{
   --bg:#0a0c13;--panel:#131826;--panel2:#1a2133;--line:#29324a;--text:#e9ecf4;--muted:#8b94aa;
@@ -27,10 +27,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 /* ---------- title ---------- */
 .title{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px}
 .logo{text-align:center;user-select:none;margin-bottom:18px}
-.logo .l1{font-size:56px;font-weight:900;letter-spacing:.18em;line-height:1;
+.logo .l1{font-size:52px;font-weight:900;letter-spacing:.14em;margin-left:.14em;line-height:1.1;
   background:linear-gradient(180deg,#fff,#7fd8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.logo .l2{font-size:30px;font-weight:800;letter-spacing:.55em;margin-left:.55em;color:#5f6d92;line-height:1.3}
-.logo .kari{font-size:12px;color:var(--muted);letter-spacing:.2em}
+.logo .l2{font-size:30px;font-weight:800;letter-spacing:.45em;margin-left:.45em;color:#8a9bc8;line-height:1.4}
+.logo .en{font-size:11px;color:var(--muted);letter-spacing:.32em;margin-left:.32em;margin-top:6px}
+.lead{color:#c3cadb;font-size:14px;line-height:1.7;text-align:center;max-width:300px;margin:0 0 4px}
+.lead span{display:inline-block}   /* 文節の途中で改行しない */
+.ver{color:var(--muted);font-size:10px;margin:0 0 10px;opacity:.8}
 .sub{color:var(--muted);font-size:12px;margin-bottom:10px}
 .btn{display:block;width:100%;max-width:300px;padding:14px;border-radius:12px;background:var(--panel2);
   border:1px solid var(--line);font-weight:700;font-size:16px;text-align:center}
@@ -1105,8 +1108,9 @@ function render(){
 }
 function renderTitle(){
   return `<div class="title">
-    <div class="logo" data-a="logo"><div class="l1">CORE</div><div class="l2">ABYSS</div><div class="kari">（仮タイトル）</div></div>
-    <div class="sub">F3＋バランス変更＋案B（2026-10-30）：基本バトル＋フラッシュ＋オーブ移動＋バースト＋自動パス</div>
+    <div class="logo" data-a="logo"><div class="l1">深淵環</div><div class="l2">オルビア</div><div class="en">SHIN'ENKAN ORBIA</div></div>
+    <p class="lead"><span>深淵環の力をめぐり、</span><span>環の継承者どうしが</span><span>オーブとカードで競う対戦ゲーム</span></p>
+    <p class="ver">版：F3＋バランス変更＋案B（2026-10-30）</p>
     <button class="btn primary" data-a="start">バトル開始</button>
     <button class="btn" data-a="cards">カード一覧</button>
     <button class="btn" data-a="stats">戦績</button>
