@@ -112,6 +112,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .noanim .cf.stealthed .kw-stealth{animation:none}
 .kwdesc{font-size:12px;line-height:1.6;margin:6px 0}
 .kwdesc b{margin-right:4px}
+/* ---------- 進化（v1.4） ---------- */
+.kw-evo{background:linear-gradient(90deg,#ffe08a,#ff9de2);color:#2a1030}
+.cf.evolved{border-color:#ffd36b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 0 0 1px #ff9de2,0 0 12px rgba(255,190,120,.55)}
+.cf.evolved .cf-name::before{content:"★";color:#ffd36b;margin-right:2px}
+.evo{color:var(--muted)}.evo b{color:#ffd36b;margin-left:3px;font-size:13px}
 /* ---------- card frame ---------- */
 .cf{position:relative;display:flex;flex-direction:column;gap:2px;border-radius:8px;padding:3px;text-align:left;
   background:linear-gradient(170deg,color-mix(in srgb,var(--c) 36%,#1a2030),#10141f 72%);
@@ -328,6 +333,8 @@ const SETTINGS = {
   turnCap: 200,                  // [未決定#9] 自動対戦の安全装置（到達＝エラー終了）
   flashActionCap: 20             // 5-1 の安全装置（仕様どおり）
 };
+// 進化（拡張Stage 2／正本v1.4 4-9）：無料・各プレイヤー試合中2回・1ターン1回・自分の2ターン目から・1体1回・BP+2000
+const EVOLVE = {maxUses: 2, bpBonus: 2000, fromOwnTurn: 2};
 const CJ = {red:'紅',blue:'蒼',green:'翠',none:'無'};
 const TYPEJ = {unit:'ユニット',magic:'マジック',area:'領域',burst:'バースト',burst_unit:'バースト・ユニット'};
 
@@ -365,6 +372,7 @@ function bp(g, u){
   const a = owner.area && owner.area.def.effect;
   if(a && a.kind === 'field_bp_up' && a.targetColor === u.def.color) v += a.value;
   for(const m of u.mods) v += m.value;
+  if(u.evolved) v += EVOLVE.bpBonus;   // 進化（v1.4）：試合中ずっと有効、他のBP増減と合算
   return Math.max(0, v);   // v1.3：0未満にはならない
 }
 function findUnit(g, uid){ for(const p of g.players){ const u = p.field.find(x => x.uid === uid); if(u) return u; } return null; }
@@ -716,6 +724,27 @@ async function flushBurstB(g){
   }
 }
 
+// ---------- 進化（v1.4） ----------
+function checkEvolve(g, p, u){
+  const no = reason => ({ok: false, reason});
+  if(g.phase !== 'main' || g.active !== p.idx || g.battle) return no('進化は自分のメインステップのみ');
+  if(p.turnsTaken < EVOLVE.fromOwnTurn) return no(`進化は自分の${EVOLVE.fromOwnTurn}ターン目から`);
+  if(p.evoUsed >= EVOLVE.maxUses) return no(`進化は試合中${EVOLVE.maxUses}回まで（使い切った）`);
+  if(p.evoTurn === g.turn) return no('進化は1ターンに1回まで');
+  if(!u || u.owner !== p.idx || !p.field.includes(u)) return no('自分の場のユニットではない');
+  if(u.evolved) return no('このユニットは進化済み');
+  return {ok: true};
+}
+const canEvolveAny = (g, p) => p.field.some(u => checkEvolve(g, p, u).ok);
+function applyEvolve(g, p, act){
+  const u = p.field.find(x => x.uid === act.uid);
+  const k = checkEvolve(g, p, u); if(!k.ok) throw new RuleError(k.reason);
+  u.evolved = true; p.evoUsed++; p.evoTurn = g.turn;   // 疲労・オーブ・キーワードはそのまま
+  g.stats.evolves = (g.stats.evolves || 0) + 1;
+  log(g, `${p.name}：${u.def.name}を進化（BP+${EVOLVE.bpBonus} → ${bp(g, u)}／残り${EVOLVE.maxUses - p.evoUsed}回）`);
+  checkInv(g); upd(g);
+}
+
 function clearMods(g, until){ for(const p of g.players) for(const u of p.field) u.mods = u.mods.filter(m => m.until !== until); }
 
 // ---------- フラッシュ窓（5-1）：優先権は防御側から ----------
@@ -830,8 +859,8 @@ async function mainStep(g, p){
     if(guard > 300) throw new FatalError('メインステップの行動数が異常');
     const act = await ask(g, p, 'main');
     if(!act || act.type === 'end') return;
-    if(act.type !== 'play' && act.type !== 'move' && act.type !== 'set'){ err(g, '不明な行動'); if(g.agents[p.idx].isCPU) return; continue; }
-    try{ if(act.type === 'move') applyMove(g, p, act); else if(act.type === 'set') applySet(g, p, act); else await applyPlay(g, p, act, 'main'); }
+    if(!['play', 'move', 'set', 'evolve'].includes(act.type)){ err(g, '不明な行動'); if(g.agents[p.idx].isCPU) return; continue; }
+    try{ if(act.type === 'move') applyMove(g, p, act); else if(act.type === 'set') applySet(g, p, act); else if(act.type === 'evolve') applyEvolve(g, p, act); else await applyPlay(g, p, act, 'main'); }
     catch(e){ if(!(e instanceof RuleError)) throw e; err(g, `${p.name} 不正な行動：${e.message}`); if(g.agents[p.idx].isCPU) return; }
   }
 }
@@ -902,7 +931,7 @@ function newGame(o){
       burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstFiredBy: {}, voidAdded: 0}};
   for(let i = 0; i < 2; i++){
     const p = {idx: i, name: o.names ? o.names[i] : 'P' + (i + 1), life: 5, stock: 4, recovery: 0,
-      deck: [], hand: [], field: [], area: null, burst: null, trash: [], orbTotal: 9, turnsTaken: 0};
+      deck: [], hand: [], field: [], area: null, burst: null, trash: [], orbTotal: 9, turnsTaken: 0, evoUsed: 0, evoTurn: 0};
     for(const [id, n] of DECK_LIST) for(let k = 0; k < n; k++) p.deck.push(mkCard(g, id));
     shuffle(g, p.deck);
     g.players.push(p);
@@ -1014,6 +1043,15 @@ const CPU = {
     // 5. 領域
     const ar = p.hand.find(c => c.def.type === 'area' && can(c) && !(p.area && p.area.id === c.id));
     if(ar) return cpuAct(g, p, ar);
+    // 5-2. 進化（v1.4）：使えるなら使う。アタックできるかどうかが変わるユニットを優先し、なければBPの最も高いユニット
+    if(canEvolveAny(g, p)){
+      const cands = p.field.filter(u => checkEvolve(g, p, u).ok);
+      const guards = activeGuardians(o), blockers = o.field.filter(u => !u.tapped);
+      const thr = guards.length ? Math.min(...guards.map(u => bp(g, u))) : (blockers.length ? Math.max(...blockers.map(u => bp(g, u))) : null);
+      const turning = thr == null || isFirstTurnOfFirst(g, p) ? [] : cands.filter(u => !u.tapped && atkBp(g, u) < thr && atkBp(g, u) + EVOLVE.bpBonus >= thr);
+      const u = turning.length ? pickBy(g, turning, u => bp(g, u), true) : pickBy(g, cands, u => bp(g, u), true);
+      return {type: 'evolve', uid: u.uid};
+    }
     // 6. オーブ移動でレベルを整える [新#1]：余ったストック（予約分を除く）で、次のレベルにちょうど届くユニットへ
     const spare = p.stock - cpuReserve(g, p);
     if(spare > 0){
@@ -1168,7 +1206,7 @@ async function runSim(o){
     for(const [k, v] of Object.entries(g.stats.plays)) r.plays[k] = (r.plays[k] || 0) + v;
     for(const [k, v] of Object.entries(g.stats.flashPlays)) r.flashPlays[k] = (r.flashPlays[k] || 0) + v;
     for(const [k, v] of Object.entries(g.stats.fx)) r.fx[k] = (r.fx[k] || 0) + v;
-    r.flashSummons += g.stats.flashSummons; r.moves += g.stats.moves;
+    r.flashSummons += g.stats.flashSummons; r.moves += g.stats.moves; r.evolves = (r.evolves || 0) + (g.stats.evolves || 0);
     for(const k of ['burstSets', 'burstChances', 'burstFired', 'burstDeclined', 'burstNoTarget', 'x3Summons', 'voidAdded']) r[k] += g.stats[k];
     for(const [k, v] of Object.entries(g.stats.burstFiredBy)) r.burstFiredBy[k] = (r.burstFiredBy[k] || 0) + v;
     r.burstLeft += g.players.filter(q => q.burst).length;
@@ -1226,8 +1264,8 @@ function describe(d){
 }
 
 root.CA = {DEFS, DEF, DECK_LIST, SETTINGS, CJ, TYPEJ, newGame, runGame, runSim, CPU, checkPlay, paymentFor, reductionOf, symbols,
-  level, baseBp, bp, findUnit, activeGuardians, hasKw, KW_INFO, checkSet, burstUsable, hasFlashAction, shouldAskFlash, lethalSpot, levelAt, bpAtLevel, checkFx, surplus, surplusOrbs, describe, effText, unitOrbs, isUnitDef, GameOver, RuleError, FatalError,
-  _: {mkCard, makeUnit, doAttack, flashWindow, applyPlay, applySet, tryBurst, applyFx, applyMove, runTurn, attackStep, mainStep, leaveField, checkInv, drawN, doPay, selfDestructCheck, cpuBlocker}};
+  level, baseBp, bp, findUnit, EVOLVE, checkEvolve, canEvolveAny, activeGuardians, hasKw, KW_INFO, checkSet, burstUsable, hasFlashAction, shouldAskFlash, lethalSpot, levelAt, bpAtLevel, checkFx, surplus, surplusOrbs, describe, effText, unitOrbs, isUnitDef, GameOver, RuleError, FatalError,
+  _: {applyEvolve, mkCard, makeUnit, doAttack, flashWindow, applyPlay, applySet, tryBurst, applyFx, applyMove, runTurn, attackStep, mainStep, leaveField, checkInv, drawN, doPay, selfDestructCheck, cpuBlocker}};
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -1381,7 +1419,7 @@ function renderTitle(){
   return `<div class="title">
     <div class="logo" data-a="logo"><div class="l1">深淵環</div><div class="l2">オルビア</div><div class="en">SHIN'ENKAN ORBIA</div></div>
     <p class="lead"><span>深淵環の力をめぐり、</span><span>環の継承者どうしが</span><span>オーブとカードで競う対戦ゲーム</span></p>
-    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C＋拡張Stage 1A＋1B（2026-10-30）</p>
+    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C＋拡張Stage 1A＋1B＋2（2026-10-31）</p>
     <button class="btn primary" data-a="start">バトル開始</button>
     <button class="btn" data-a="tutorial">遊び方・世界観</button>
     <button class="btn" data-a="cards">カード一覧</button>
@@ -1398,7 +1436,8 @@ function cardFrame(d, o){
   if(o.cls) cls.push(o.cls);
   // キーワードのラベル：場のユニットは「潜伏中」かどうかを反映（潜伏が解けたら潜伏ラベルは出さない）
   const kwList = d.keywords.filter(k => CA.KW_INFO[k] && !(o.unit && k === 'jinrai') && !(o.unit && k === 'stealth' && !o.stealth));
-  const kws = kwList.length ? `<span class="kws">${kwList.map(k => `<span class="kw kw-${k}">${o.unit && k === 'stealth' ? '潜伏中' : CA.KW_INFO[k].name}</span>`).join('')}</span>` : '';
+  if(o.unit && o.evolved) kwList.unshift('evo');
+  const kws = kwList.length ? `<span class="kws">${kwList.map(k => k === 'evo' ? '<span class="kw kw-evo">進化</span>' : `<span class="kw kw-${k}">${o.unit && k === 'stealth' ? '潜伏中' : CA.KW_INFO[k].name}</span>`).join('')}</span>` : '';
   const art = `<div class="cf-art">${IMG[d.id] ? `<img src="${imgPath(d.id)}" alt="" draggable="false">` : `<span class="fb-k">${CJ[d.color]}</span><span class="fb-id">${d.id}</span>`}${kws}${o.orbs ? `<span class="cf-orbs">${'●'.repeat(o.orbs)}</span>` : ''}</div>`;
   let top, bot;
   if(o.unit){
@@ -1422,7 +1461,7 @@ function unitTile(g, u, mine, still){
   const canAtk = !still && mine && UI.pending && UI.pending.kind === 'attack' && !u.tapped;
   const an = still ? {cls: '', style: ''} : animFor('u' + u.uid);
   const cls = [u.tapped ? 'tapped' : '', canAtk ? 'can-atk' : '', u.stealth ? 'stealthed' : '', b && b.attacker === u.uid ? 'atk' : '', b && b.blocker === u.uid ? 'blk' : ''].filter(Boolean).join(' ') + an.cls;
-  return cardFrame(u.def, {size: 'unit', unit: true, cls, bp: v, bpMod: v !== base, lv: CA.level(u), orbs: u.orbs, stealth: !!u.stealth,
+  return cardFrame(u.def, {size: 'unit', unit: true, cls: cls + (u.evolved ? ' evolved' : ''), bp: v, bpMod: v !== base, lv: CA.level(u), orbs: u.orbs, stealth: !!u.stealth, evolved: !!u.evolved,
     attrs: ` data-a="${canAtk ? 'atk' : 'unit'}" data-uid="${u.uid}"${canAtk ? ` aria-label="${esc(u.def.name)}でアタック"` : ''}${an.style}`,
     extra: u.tapped ? '<span class="cf-tap">疲労</span>' : ''});
 }
@@ -1453,6 +1492,7 @@ function prowHtml(g, p, mine){
       ${lifeDots(p)}
       <span class="stat">ストック<b class="orbc">${p.stock}</b></span>
       <span class="stat">回収待ち<b>${p.recovery}</b></span>
+      <span class="evo">進化<b>${CA.EVOLVE.maxUses - p.evoUsed}</b></span>
       ${mine ? '' : `<span class="stat">手札<b>${p.hand.length}</b></span>`}
     </div>${zonesHtml(g, p, mine)}</div>`;
 }
@@ -1507,7 +1547,7 @@ function renderBattle(){
   let phase = '', btn = '';
   if(pend && pend.kind === 'main'){
     const noAtk = g.first === me.idx && me.turnsTaken === 1;
-    phase = '<b>メイン</b><span class="ps">' + (noAtk ? '先攻1ターン目：アタックなし' : '手札をタップ') + '</span>';
+    phase = '<b>メイン</b><span class="ps">' + (noAtk ? '先攻1ターン目：アタックなし' : (CA.canEvolveAny(g, me) ? 'ユニットをタップで進化できます' : '手札をタップ')) + '</span>';
     btn = `<button class="mini" data-a="move"${me.field.length ? '' : ' disabled'}>オーブ移動</button><button class="go${noAtk ? ' end' : ''}" data-a="toAttack">${noAtk ? 'ターン終了' : 'アタックへ ▶'}</button>`;
   }
   else if(pend && pend.kind === 'attack'){ phase = '<b>アタック</b><span class="ps">' + (CA.activeGuardians(op).length ? '相手に守護あり：守護とバトル' : '光っているユニットをタップで宣言') + '</span>'; btn = `<button class="go end" data-a="endTurn">ターン終了</button>`; }
@@ -1581,7 +1621,8 @@ const TUT = [
   {tag: '遊び方', title: 'ターンの流れ', items: ['① コアステップ：ストックにオーブ+1（先攻の最初のターンは増えない）', '② ドローステップ：1枚引く（後攻の最初のターンは2枚）', '③ リフレッシュステップ：ユニットが回復し、使ったオーブがストックに戻る', '④ メインステップ：召喚・マジック・領域・バーストのセット・オーブ移動', '⑤ アタックステップ：1体ずつアタック（先攻の最初のターンはできない）']},
   {tag: '遊び方', title: 'アタックとブロック', items: ['アタックされた側は、自分のユニット1体でブロックできます', 'BPの高い方が残り、同じなら両方が破壊されます', 'ブロックしなければライフが1減ります']},
   {tag: '遊び方', title: 'フラッシュ', items: ['ブロック宣言の前（W1）と後（W2）に、防御側から交互に1つずつ行動できます', 'フラッシュ対応のマジック、迅雷を持つユニットの召喚、場のユニットの効果が使えます', '両者が続けてパスすると、バトルの解決に進みます']},
-  {tag: '遊び方', title: 'バースト', items: ['バースト札はメインステップに裏向きでセットします（1枚まで）', '自分のライフが減ったときや、自分のユニットが相手によって場を離れたときに、無料で発動できます', '準備ができたら、対戦を始めましょう']}
+  {tag: '遊び方', title: 'バースト', items: ['バースト札はメインステップに裏向きでセットします（1枚まで）', '自分のライフが減ったときや、自分のユニットが相手によって場を離れたときに、無料で発動できます']},
+  {tag: '遊び方', title: '進化', items: ['自分の2ターン目から、メインステップに場のユニット1体を無料で進化できます（ユニットをタップ）', '進化したユニットはBP+2000。場にいる間ずっと続きます', '試合中2回・1ターン1回まで。同じユニットは1回だけ', '準備ができたら、対戦を始めましょう']}
 ];
 function renderTutorial(){
   const i = UI.tut.i, s = TUT[i], last = i === TUT.length - 1;
@@ -1619,6 +1660,7 @@ function renderSim(){
       <div class="metric"><span>迅雷フラッシュ召喚</span><b>${r.flashSummons}</b></div>
       <div class="metric"><span>場のフラッシュ効果 B5／G4</span><b>${r.fx.B5 || 0} / ${r.fx.G4 || 0}</b></div>
       <div class="metric"><span>オーブ移動（回数）</span><b>${r.moves}</b></div>
+      <div class="metric"><span>進化（回数・1試合平均）</span><b>${r.evolves || 0}（${((r.evolves || 0) / r.games).toFixed(2)}）</b></div>
       <div class="metric"><span>ボイドから追加されたオーブ（1試合平均）</span><b>${(r.voidAdded / r.games).toFixed(1)}</b></div>
       <div class="metric"><span>バースト セット回数</span><b>${r.burstSets}</b></div>
       <div class="metric"><span>　条件成立／発動／発動しない／対象なし</span><b>${r.burstChances} / ${r.burstFired} / ${r.burstDeclined} / ${r.burstNoTarget}</b></div>
@@ -1646,7 +1688,8 @@ function cardDetail(d, extra){
     <p class="note">${d.id}／${CJ[d.color]}・${TYPEJ[d.type]}</p>
     <dl class="kv"><dt>コスト</dt><dd>${d.cost}</dd><dt>軽減</dt><dd>${red}</dd>
       <dt>使用</dt><dd>${tm}</dd>${d.levels ? `<dt>レベル</dt><dd>${lv}</dd>` : ''}${extra || ''}</dl>
-    <div class="eff">${eff}</div>`;
+    <div class="eff">${eff}</div>
+    ${CA.isUnitDef(d) ? `<p class="note">進化：自分のメインステップに、場のユニット1体を無料で進化できます（BP+${CA.EVOLVE.bpBonus}、自分の${CA.EVOLVE.fromOwnTurn}ターン目から、試合中${CA.EVOLVE.maxUses}回・1ターン1回まで、1体1回まで）。</p>` : ''}`;
 }
 function renderModal(){
   const g = UI.g, s = UI.sub, pend = UI.pending;
@@ -1808,12 +1851,21 @@ const H = {
   unit(el){
     const g = UI.g, u = CA.findUnit(g, +el.dataset.uid); if(!u) return;
     const mods = u.mods.map(m => `+${m.value}（${m.until === 'turn' ? 'このターン' : 'このバトル'}）`).join('、') || 'なし';
-    const extra = `<dt>持ち主</dt><dd>${esc(g.players[u.owner].name)}</dd><dt>現在</dt><dd>Lv${CA.level(u)}・BP${CA.bp(g, u)}・オーブ${u.orbs}${u.tapped ? '・疲労' : ''}${u.stealth ? '・潜伏中' : (u.def.keywords.includes('stealth') ? '・潜伏は解けている' : '')}</dd><dt>BP修正</dt><dd>${mods}</dd>`;
-    UI.sub = {type: 'detail', html: cardDetail(u.def, extra)}; render();
+    const owner = g.players[u.owner];
+    const evoTxt = u.evolved ? `進化済み（BP+${CA.EVOLVE.bpBonus}、場にいる間ずっと有効）` : '未進化';
+    const extra = `<dt>持ち主</dt><dd>${esc(owner.name)}</dd><dt>現在</dt><dd>Lv${CA.level(u)}・BP${CA.bp(g, u)}・オーブ${u.orbs}${u.tapped ? '・疲労' : ''}${u.stealth ? '・潜伏中' : (u.def.keywords.includes('stealth') ? '・潜伏は解けている' : '')}</dd><dt>BP修正</dt><dd>${mods}</dd><dt>進化</dt><dd>${evoTxt}</dd>`;
+    let actions = '';
+    if(u.owner === 0 && UI.pending && UI.pending.kind === 'main' && !u.evolved){
+      const k = CA.checkEvolve(g, owner, u);
+      actions = k.ok ? `<div class="btns"><button class="btn primary" data-a="evolve" data-uid="${u.uid}">進化する（BP+${CA.EVOLVE.bpBonus}・無料／残り${CA.EVOLVE.maxUses - owner.evoUsed}回）</button></div>`
+                     : `<p class="note warn">進化できない：${esc(k.reason)}</p>`;
+    }
+    UI.sub = {type: 'detail', html: cardDetail(u.def, extra), actions}; render();
   },
   areainfo(el){ const p = UI.g.players[+el.dataset.p]; if(p.area){ UI.sub = {type: 'detail', html: cardDetail(p.area.def)}; render(); } },
   use(el){ humanPlay(+el.dataset.uid); },
   setb(el){ if(UI.pending && UI.pending.kind === 'main') answer({type: 'set', uid: +el.dataset.uid}); },
+  evolve(el){ if(UI.pending && UI.pending.kind === 'main') answer({type: 'evolve', uid: +el.dataset.uid}); },
   burstinfo(){ const p = UI.g.players[0]; if(p.burst){ UI.sub = {type: 'detail', html: cardDetail(p.burst.def, '<dt>状態</dt><dd>裏向きでセット中</dd>')}; render(); } },
   bYes(){ if(UI.pending && (UI.pending.kind === 'burst' || UI.pending.kind === 'burstSummon')) answer(true); },
   bNo(){ if(UI.pending && (UI.pending.kind === 'burst' || UI.pending.kind === 'burstSummon')) answer(false); },
