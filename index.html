@@ -122,7 +122,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .cf-orbs{position:absolute;left:2px;bottom:1px;color:var(--orb);letter-spacing:-1.5px;text-shadow:0 0 4px #000,0 0 2px #000}
 .cf-tap{position:absolute;top:2px;right:2px;font-size:8.5px;font-weight:800;color:#1a1200;background:#ffb070;border-radius:4px;padding:0 3px;z-index:2}
 .cf-new{position:absolute;top:19px;left:5px;font-size:8px;font-weight:900;color:#06210f;background:#5ff0a0;border-radius:4px;padding:0 3px}
-.atkbtn{position:absolute;left:3px;right:3px;bottom:3px;background:var(--gold);color:#1a1200;border-radius:6px;font-size:11px;font-weight:900;padding:6px 0;z-index:3}
+/* アタックできるユニット：枠がゆるやかに光る（タップで宣言）。BPは隠さない */
+@keyframes atkPulse{0%,100%{box-shadow:0 0 0 1.5px var(--gold),0 0 6px color-mix(in srgb,var(--gold) 45%,transparent)}50%{box-shadow:0 0 0 2.5px var(--gold),0 0 18px var(--gold)}}
+.cf.can-atk{border-color:var(--gold);animation:atkPulse 1.6s ease-in-out infinite;cursor:pointer}
+.noanim .cf.can-atk{animation:none;box-shadow:0 0 0 2px var(--gold),0 0 12px var(--gold)}
 .cf.tapped{opacity:.6;transform:rotate(-8deg) scale(.92)}
 .cf.atk{box-shadow:0 0 0 2px var(--gold),0 0 14px var(--gold)}
 .cf.blk{box-shadow:0 0 0 2px #fff,0 0 12px #9cc4ff}
@@ -133,9 +136,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .sz-hand{flex:0 0 66px;height:96px}
 .sz-hand .cf-cost{font-size:8px}.sz-hand .cf-pay{font-size:9px}.sz-hand .cf-art{height:34px}.sz-hand .fb-k{font-size:16px}.sz-hand .fb-id{font-size:8px}
 .sz-hand .cf-name{font-size:9.5px}.sz-hand .cf-bp{font-size:12px}.sz-hand .cf-type{font-size:8.5px}.sz-hand .cf-lv{font-size:9px}
-.sz-list{height:150px;width:100%}
-.sz-list .cf-cost{font-size:10px}.sz-list .cf-art{height:66px}.sz-list .fb-k{font-size:30px}.sz-list .fb-id{font-size:9px}
+.sz-list{height:auto;width:100%;gap:3px}
+.sz-list .cf-cost{font-size:10px}.sz-list .cf-art{height:auto;aspect-ratio:1/1}.sz-list .fb-k{font-size:30px}.sz-list .fb-id{font-size:9px}
 .sz-list .cf-name{font-size:11.5px}.sz-list .cf-bp{font-size:15px}.sz-list .cf-type{font-size:10px}.sz-list .cf-lv{font-size:10px}
+.sz-list .cf-bot{min-height:17px;align-items:center}
 .sz-big{width:160px;height:228px;margin:0 auto 10px;padding:5px;border-width:3px;border-radius:12px}
 .sz-big .cf-cost{font-size:13px}.sz-big .cf-pay{font-size:12px}.sz-big .cf-art{height:126px}.sz-big .fb-k{font-size:52px}.sz-big .fb-id{font-size:11px}
 .sz-big .cf-name{font-size:15px}.sz-big .cf-bp{font-size:22px}.sz-big .cf-type{font-size:12px}.sz-big .cf-lv{font-size:13px}
@@ -1247,6 +1251,7 @@ function render(){
     case 'tutorial': h = renderTutorial(); break;
   }
   h += renderModal();
+  $app.classList.toggle('noanim', !!(UI.prefs && !UI.prefs.anim));
   $app.innerHTML = h;
 }
 function renderTitle(){
@@ -1290,10 +1295,10 @@ function unitTile(g, u, mine, still){
   const v = CA.bp(g, u), base = CA.baseBp(u);
   const canAtk = !still && mine && UI.pending && UI.pending.kind === 'attack' && !u.tapped;
   const an = still ? {cls: '', style: ''} : animFor('u' + u.uid);
-  const cls = [u.tapped ? 'tapped' : '', b && b.attacker === u.uid ? 'atk' : '', b && b.blocker === u.uid ? 'blk' : ''].filter(Boolean).join(' ') + an.cls;
+  const cls = [u.tapped ? 'tapped' : '', canAtk ? 'can-atk' : '', b && b.attacker === u.uid ? 'atk' : '', b && b.blocker === u.uid ? 'blk' : ''].filter(Boolean).join(' ') + an.cls;
   return cardFrame(u.def, {size: 'unit', unit: true, cls, bp: v, bpMod: v !== base, lv: CA.level(u), orbs: u.orbs,
-    attrs: ` data-a="unit" data-uid="${u.uid}"${an.style}`,
-    extra: (u.tapped ? '<span class="cf-tap">疲労</span>' : '') + (canAtk ? `<button class="atkbtn" data-a="atk" data-uid="${u.uid}">⚔ アタック</button>` : '')});
+    attrs: ` data-a="${canAtk ? 'atk' : 'unit'}" data-uid="${u.uid}"${canAtk ? ` aria-label="${esc(u.def.name)}でアタック"` : ''}${an.style}`,
+    extra: u.tapped ? '<span class="cf-tap">疲労</span>' : ''});
 }
 function handCard(g, p, c){
   const d = c.def, pend = UI.pending;
@@ -1379,7 +1384,7 @@ function renderBattle(){
     phase = '<b>メイン</b><span class="ps">' + (noAtk ? '先攻1ターン目：アタックなし' : '手札をタップ') + '</span>';
     btn = `<button class="mini" data-a="move"${me.field.length ? '' : ' disabled'}>オーブ移動</button><button class="go${noAtk ? ' end' : ''}" data-a="toAttack">${noAtk ? 'ターン終了' : 'アタックへ ▶'}</button>`;
   }
-  else if(pend && pend.kind === 'attack'){ phase = '<b>アタック</b><span class="ps">ユニットの「⚔」で宣言</span>'; btn = `<button class="go end" data-a="endTurn">ターン終了</button>`; }
+  else if(pend && pend.kind === 'attack'){ phase = '<b>アタック</b><span class="ps">光っているユニットをタップで宣言</span>'; btn = `<button class="go end" data-a="endTurn">ターン終了</button>`; }
   else if(pend && pend.kind === 'step'){ phase = '<b>ターン開始</b><span class="ps">タップで次のステップへ</span>'; }
   else if(g.over){ phase = '<b>試合終了</b>'; }
   else if(g.active === 1){ phase = '<b>相手のターン</b><span class="ps">' + ({core: 'コアステップ', draw: 'ドローステップ', refresh: 'リフレッシュステップ', main: 'メインステップ', attack: 'アタックステップ'}[g.phase] || '処理中…') + '</span>'; }
