@@ -272,7 +272,20 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
   {"id":"N2","name":"静かなる泉","type":"area","color":"blue","cost":3,"reduction":{"blue":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"blue"},"flashEffect":null,"burst":null},
   {"id":"X1","name":"烈火の反撃","type":"burst","color":"red","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"destroy","target":{"owner":"opponent","type":"unit","maxBp":6000}}}},
   {"id":"X2","name":"時戻しの渦","type":"burst","color":"blue","cost":0,"reduction":{},"levels":null,"symbol":0,"keywords":[],"useTiming":[],"effect":null,"flashEffect":null,"burst":{"condition":"life_lost","effect":{"kind":"bounce","target":{"owner":"opponent","type":"unit"}}}},
-  {"id":"X3","name":"森の番人","type":"burst_unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":{"condition":"own_unit_removed_by_opponent","effect":{"kind":"core_add","value":2},"afterSummon":{"cost":0,"placeCoresFromStock":1,"ifFieldFull":"return_to_hand"}}}
+  {"id":"X3","name":"森の番人","type":"burst_unit","color":"green","cost":4,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":{"condition":"own_unit_removed_by_opponent","effect":{"kind":"core_add","value":2},"afterSummon":{"cost":0,"placeCoresFromStock":1,"ifFieldFull":"return_to_hand"}}},
+  {"id":"R7","name":"熔岩のゴーレム","type":"unit","color":"red","cost":5,"reduction":{"red":2},"levels":[{"lv":1,"cores":1,"bp":4000},{"lv":2,"cores":3,"bp":6000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"R10","name":"紅蓮の魔導師","type":"unit","color":"red","cost":4,"reduction":{"red":1},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":3,"bp":4000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"destroy","timing":"on_summon","target":{"owner":"opponent","type":"unit","state":"tapped"}},"flashEffect":null,"burst":null},
+  {"id":"M7","name":"爆炎の連鎖","type":"magic","color":"red","cost":4,"reduction":{"red":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"destroy","timing":"on_use","target":{"owner":"opponent","type":"unit","maxBp":2000,"maxTargets":2}},"flashEffect":null,"burst":null},
+  {"id":"M10","name":"業火の裁き","type":"magic","color":"red","cost":5,"reduction":{"red":2},"levels":null,"symbol":0,"keywords":[],"useTiming":["main"],"effect":{"kind":"destroy","timing":"on_use","target":{"owner":"opponent","type":"unit"}},"flashEffect":null,"burst":null},
+  {"id":"B8","name":"氷河のレヴィアタン","type":"unit","color":"blue","cost":7,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":6000},{"lv":2,"cores":4,"bp":9000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"B9","name":"深海の歌姫","type":"unit","color":"blue","cost":5,"reduction":{"blue":2},"levels":[{"lv":1,"cores":1,"bp":3000},{"lv":2,"cores":3,"bp":5000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"exhaust","timing":"on_summon","target":{"owner":"opponent","type":"unit","state":"untapped"}},"flashEffect":null,"burst":null},
+  {"id":"M8","name":"引き潮","type":"magic","color":"blue","cost":2,"reduction":{"blue":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"bounce","timing":"on_use","target":{"owner":"opponent","type":"unit","maxBp":3000}},"flashEffect":null,"burst":null},
+  {"id":"G6","name":"若芽のドルイド","type":"unit","color":"green","cost":2,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":1000},{"lv":2,"cores":2,"bp":2000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":{"kind":"self_core_add","oncePerTurn":true,"value":1},"burst":null},
+  {"id":"G7","name":"世界樹の番竜","type":"unit","color":"green","cost":6,"reduction":{"green":2},"levels":[{"lv":1,"cores":1,"bp":5000},{"lv":2,"cores":3,"bp":7000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":null,"flashEffect":null,"burst":null},
+  {"id":"G8","name":"古森の巫女","type":"unit","color":"green","cost":3,"reduction":{"green":1},"levels":[{"lv":1,"cores":1,"bp":2000},{"lv":2,"cores":2,"bp":3000}],"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_summon","value":1},"flashEffect":null,"burst":null},
+  {"id":"M9","name":"豊穣の祈り","type":"magic","color":"green","cost":4,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main"],"effect":{"kind":"core_add","timing":"on_use","value":3},"flashEffect":null,"burst":null},
+  {"id":"M11","name":"芽吹きの祝福","type":"magic","color":"green","cost":1,"reduction":{"green":1},"levels":null,"symbol":0,"keywords":[],"useTiming":["main","flash"],"effect":{"kind":"core_add","timing":"on_use","value":1},"flashEffect":null,"burst":null},
+  {"id":"N3","name":"命脈の聖地","type":"area","color":"green","cost":3,"reduction":{"green":1},"levels":null,"symbol":1,"keywords":[],"useTiming":["main"],"effect":{"kind":"field_bp_up","timing":"constant","value":1000,"targetColor":"green"},"flashEffect":null,"burst":null}
 ]
 </script>
 
@@ -406,8 +419,12 @@ function targetCandidates(g, p, eff){
   return side.field.filter(u =>
     (t.maxCost == null || u.def.cost <= t.maxCost) &&
     (t.maxBp == null || bp(g, u) <= t.maxBp) &&
-    (t.state !== 'untapped' || !u.tapped));
+    (t.state !== 'untapped' || !u.tapped) &&
+    (t.state !== 'tapped' || u.tapped));
 }
+const maxTargetsOf = eff => (eff && eff.target && eff.target.maxTargets) || 1;
+// 対象指定を配列にそろえる（1体なら数値、複数なら配列のどちらでも受け付ける）
+const targetList = tg => tg == null ? [] : (Array.isArray(tg) ? tg : [tg]);
 
 // 使用可否（フラッシュ：対応マジック／迅雷ユニット。バースト＝F3）
 // opts.allowUnits：true（既定）＝ユニット上の全オーブ／'surplus'＝レベルを下げない余剰分のみ（CPU）／false＝ストックのみ
@@ -430,7 +447,10 @@ function checkPlay(g, p, card, timing, target, opts){
   if(d.type === 'magic' && d.effect && d.effect.target){
     cands = targetCandidates(g, p, d.effect);
     if(!cands.length) return no('対象なし');
-    if(target != null && !cands.some(u => u.uid === target)) return no('不正な対象');
+    if(target != null){
+      const ts = targetList(target), mx = maxTargetsOf(d.effect);
+      if(!ts.length || ts.length > mx || new Set(ts).size !== ts.length || !ts.every(x => cands.some(u => u.uid === x))) return no('不正な対象');
+    }
   }
   return {ok: true, pay, needUnits: p.stock < pay, cands};
 }
@@ -479,7 +499,7 @@ async function applyPlay(g, p, act, timing){
   if(!card) throw new RuleError('手札にないカード');
   const chk = checkPlay(g, p, card, timing, act.target);
   if(!chk.ok) throw new RuleError(chk.reason);
-  if(chk.cands && act.target == null) throw new RuleError('対象が未指定');
+  if(chk.cands && !targetList(act.target).length) throw new RuleError('対象が未指定');
   const d = card.def, amount = chk.pay;
   const paid = doPay(g, p, amount, act.payFrom);                     // 2. 支払い
   p.hand.splice(p.hand.indexOf(card), 1);
@@ -514,12 +534,11 @@ async function applyPlay(g, p, act, timing){
     p.recovery += amount; p.trash.push(card);
     log(g, `${p.name}：${d.name}を使用${timing === 'flash' ? '（フラッシュ）' : ''}（${payTxt}）`);
     selfDestructCheck(g);
-    let t = null;
     if(chk.cands){
-      t = findUnit(g, act.target);
-      if(!t){ log(g, `${d.name}：対象が場を離れたため効果なし`); checkInv(g); upd(g); return; }
-    }
-    applyEffect(g, p, d.effect, t);
+      const ts = targetList(act.target).map(x => findUnit(g, x)).filter(Boolean);   // 離れた個体への効果は終了
+      if(!ts.length){ log(g, `${d.name}：対象が場を離れたため効果なし`); checkInv(g); upd(g); return; }
+      for(const u of ts) if(findUnit(g, u.uid)) applyEffect(g, p, d.effect, u);
+    } else applyEffect(g, p, d.effect, null);
     await flushBurstB(g);
   } else if(d.type === 'area'){
     p.recovery += amount;
@@ -887,7 +906,13 @@ function cpuPayFrom(g, p, def){
   return m;
 }
 const cpuCan = (g, p, c, timing, t) => checkPlay(g, p, c, timing, t, {allowUnits: 'surplus'}).ok;
-const cpuAct = (g, p, c, t) => ({type: 'play', uid: c.uid, target: t, payFrom: cpuPayFrom(g, p, c.def)});
+function cpuTargets(g, p, c, t){
+  const mx = maxTargetsOf(c.def.effect);
+  if(t == null || mx <= 1) return t;
+  const rest = targetCandidates(g, p, c.def.effect).filter(u => u.uid !== t).sort((a, b) => bp(g, b) - bp(g, a));
+  return [t, ...rest.slice(0, mx - 1).map(u => u.uid)];
+}
+const cpuAct = (g, p, c, t) => ({type: 'play', uid: c.uid, target: cpuTargets(g, p, c, t), payFrom: cpuPayFrom(g, p, c.def)});
 function cpuFlashPlay(g, p, kind, target){
   const c = p.hand.find(c => magicKind(c, kind) && cpuCan(g, p, c, 'flash', target.uid));
   return c ? cpuAct(g, p, c, target.uid) : null;
@@ -918,6 +943,9 @@ const CPU = {
     // 3. 払えるユニットをコストの高い順に召喚
     const us = p.hand.filter(c => isUnitDef(c.def) && can(c));
     if(us.length){ const c = pickBy(g, us, c => c.def.cost, true); return cpuAct(g, p, c); }
+    // 3-2. M10（メイン専用の破壊）：召喚の後、相手ユニットがいればBP最大を破壊（v1.2）
+    { const c = p.hand.find(c => magicKind(c, 'destroy') && c.def.useTiming.length === 1 && c.def.useTiming[0] === 'main' && can(c, null));
+      if(c){ const ts = targetCandidates(g, p, c.def.effect); if(ts.length){ const t = pickBy(g, ts, u => bp(g, u), true); return cpuAct(g, p, c, t.uid); } } }
     // 4. M5
     const ex = p.hand.find(c => magicKind(c, 'exhaust') && can(c));
     if(ex && !isFirstTurnOfFirst(g, p) && p.field.some(u => !u.tapped)){
@@ -1070,8 +1098,8 @@ async function runSim(o){
 }
 
 // ---------- 表示用テキスト ----------
-function targetText(t){ let s = ''; if(t.state === 'untapped') s += '疲労していない'; if(t.maxCost != null) s += `コスト${t.maxCost}以下の`;
-  if(t.maxBp != null) s += `BP${t.maxBp}以下の`; return s + (t.owner === 'opponent' ? '相手ユニット1体' : '自分のユニット1体'); }
+function targetText(t){ let s = ''; if(t.state === 'untapped') s += '疲労していない'; if(t.state === 'tapped') s += '疲労している'; if(t.maxCost != null) s += `コスト${t.maxCost}以下の`;
+  if(t.maxBp != null) s += `BP${t.maxBp}以下の`; const n = t.maxTargets > 1 ? `${t.maxTargets}体まで` : '1体'; return s + (t.owner === 'opponent' ? '相手ユニット' : '自分のユニット') + n; }
 function effText(e){
   if(!e) return '';
   const pre = e.timing === 'on_summon' ? '召喚時：' : '';
@@ -1227,7 +1255,8 @@ async function humanPlay(uid){
   if(!chk.ok) return;
   let target = null;
   if(chk.cands){
-    target = await subPromise({type: 'pick', def: card.def, cands: chk.cands, cancel: true});
+    const mx = (card.def.effect.target && card.def.effect.target.maxTargets) || 1;
+    target = await subPromise({type: 'pick', def: card.def, cands: chk.cands, cancel: true, multi: mx > 1 ? mx : 0, sel: []});
     if(target == null){ UI.sub = null; render(); return; }
   }
   let payFrom = null;
@@ -1258,7 +1287,7 @@ function renderTitle(){
   return `<div class="title">
     <div class="logo" data-a="logo"><div class="l1">深淵環</div><div class="l2">オルビア</div><div class="en">SHIN'ENKAN ORBIA</div></div>
     <p class="lead"><span>深淵環の力をめぐり、</span><span>環の継承者どうしが</span><span>オーブとカードで競う対戦ゲーム</span></p>
-    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C（2026-10-30）</p>
+    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C＋拡張Stage 1A（2026-10-30）</p>
     <button class="btn primary" data-a="start">バトル開始</button>
     <button class="btn" data-a="tutorial">遊び方・世界観</button>
     <button class="btn" data-a="cards">カード一覧</button>
@@ -1526,6 +1555,12 @@ function renderModal(){
   const g = UI.g, s = UI.sub, pend = UI.pending;
   if(s){
     if(s.type === 'detail') return sheet(s.html + (s.actions || '') + `<div class="btns"><button class="btn" data-a="close">閉じる</button></div>`, true);
+    if(s.type === 'pick' && s.multi){
+      const rows = s.cands.map(u => { const on = s.sel.includes(u.uid);
+        return `<button class="row${on ? ' ok' : ''}" data-a="tgtSel" data-uid="${u.uid}"><span class="dot c-${u.def.color}"></span><span class="nm">${on ? '☑ ' : '☐ '}${esc(u.def.name)}<small>${esc(g.players[u.owner].name)}・BP${CA.bp(g, u)}・Lv${CA.level(u)}${u.tapped ? '・疲労' : ''}</small></span></button>`; }).join('');
+      return sheet(`<h3>${esc(s.def.name)}：対象を選ぶ（${s.multi}体まで）</h3><p class="note">${esc(CA.effText(s.def.effect))}。1体だけ選んで決定することもできます。</p>` + rows +
+        `<div class="btns"><button class="btn" data-a="cancel">やめる</button><button class="btn primary" data-a="tgtOk"${s.sel.length ? '' : ' disabled'}>決定（${s.sel.length}体）</button></div>`);
+    }
     if(s.type === 'pick'){
       return sheet(`<h3>${esc(s.def.name)}：対象を選ぶ</h3><p class="note">${esc(CA.effText(s.def.effect))}</p>` +
         s.cands.map(u => targetRow(g, u)).join('') + `<div class="btns"><button class="btn" data-a="cancel">やめる</button></div>`);
@@ -1717,6 +1752,9 @@ const H = {
   blk(el){ if(UI.pending && UI.pending.kind === 'block') answer(el.dataset.uid === 'none' ? null : +el.dataset.uid); },
   pass(){ if(UI.pending && UI.pending.kind === 'flash') answer({type: 'pass'}); },
   tgt(el){ const s = UI.sub; if(s && s.type === 'pick'){ UI.sub = null; s.res(+el.dataset.uid); } },
+  tgtSel(el){ const s = UI.sub; if(!s || s.type !== 'pick' || !s.multi) return; const k = +el.dataset.uid;
+    if(s.sel.includes(k)) s.sel = s.sel.filter(x => x !== k); else if(s.sel.length < s.multi) s.sel.push(k); render(); },
+  tgtOk(){ const s = UI.sub; if(!s || s.type !== 'pick' || !s.multi || !s.sel.length) return; UI.sub = null; s.res(s.sel.slice()); },
   tgtE(el){ if(UI.pending && UI.pending.kind === 'target') answer(+el.dataset.uid); },
   cancel(){ const s = UI.sub; UI.sub = null; if(s && s.res) s.res(null); render(); },
   close(){ UI.sub = null; render(); },
