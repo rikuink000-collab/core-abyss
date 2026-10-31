@@ -357,10 +357,10 @@ const DEF = {}; DEFS.forEach(d => { DEF[d.id] = d; });
 // ---------- デッキ（拡張Stage 3／正本v1.5） ----------
 // 初期プリセット4種（各36枚）。「標準」が既定のデッキ（旧・初期デッキを置き換え）
 const PRESETS = [
-  {key: 'std', name: '標準', cards: {R1: 3, R2: 2, R3: 1, R4: 1, R5: 1, R6: 1, B1: 3, B2: 1, B3: 2, B4: 1, B5: 1, B6: 1,
-    G1: 3, G2: 1, G3: 1, G4: 1, G5: 1, M1: 1, M2: 1, M3: 1, M4: 1, M5: 1, M6: 1, M8: 1, N1: 1, X1: 1, X2: 1, X3: 1}},
-  {key: 'red', name: '紅軸', cards: {R1: 3, R2: 3, R3: 3, R4: 3, R5: 2, R6: 3, R7: 2, R8: 2, M1: 3, M7: 3, N1: 3, X1: 3, M4: 3}},
-  {key: 'blue', name: '蒼軸', cards: {B1: 3, B2: 3, B3: 3, B4: 2, B5: 2, B6: 3, B7: 3, B8: 2, M2: 3, M5: 2, M8: 3, N2: 3, X2: 2, M4: 2}},
+  {key: 'std', name: '標準', cards: {R1: 3, R2: 2, R3: 1, R4: 1, R5: 2, R6: 1, B1: 3, B2: 1, B3: 2, B4: 1, B5: 1, B6: 1,
+    G1: 2, G2: 1, G3: 1, G4: 1, G5: 1, M1: 1, M2: 1, M4: 1, M5: 1, M6: 1, M8: 1, N1: 1, X1: 1, X2: 2, X3: 1}},
+  {key: 'red', name: '紅軸', cards: {R1: 3, R2: 2, R3: 3, R4: 2, R5: 1, R6: 2, R7: 1, R8: 2, M1: 2, M7: 1, N1: 3, X1: 3, M4: 3, G1: 3, M3: 2, G8: 1, B2: 2}},
+  {key: 'blue', name: '蒼軸', cards: {B1: 3, B2: 3, B3: 3, B4: 2, B5: 2, B6: 3, B7: 3, B8: 1, B9: 1, M2: 3, M3: 1, M4: 2, M6: 1, M8: 2, M10: 1, N2: 3, X2: 2}},
   {key: 'green', name: '翠軸', cards: {G1: 3, G2: 3, G3: 2, G4: 3, G5: 3, G6: 3, G7: 2, G8: 2, M3: 3, M6: 3, M9: 3, X3: 3, M4: 3}}
 ];
 const DECK_SIZE = 36, SAME_MAX = 3;
@@ -1274,7 +1274,8 @@ const CPU = {
 async function runSim(o){
   const r = {games: o.games, seed: o.seed, decided: 0, firstWins: 0, errorGames: 0, errorsTotal: 0, fatalGames: 0,
     turns: 0, flash: 0, attacks: 0, aborted: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {},
-    burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, voidAdded: 0, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {}};
+    burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, voidAdded: 0, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {},
+    p1Wins: 0, p1FirstGames: 0, p1FirstWins: 0, p1SecondGames: 0, p1SecondWins: 0};   // P1（席0＝decks[0]）の集計。先攻・後攻はゲームごとにランダム
   for(let i = 0; i < o.games; i++){
     const pick = (d, k) => d == null ? 0 : (d === 'random' ? Math.floor(mulberry32(((o.seed + i) * 7919 + k * 104729) >>> 0)() * PRESETS.length) : d);
     const di = [pick(o.decks && o.decks[0], 1), pick(o.decks && o.decks[1], 2)];
@@ -1290,11 +1291,16 @@ async function runSim(o){
     r.burstLeft += g.players.filter(q => q.burst).length;
     if(g.errors.length){ r.errorGames++; r.errorsTotal += g.errors.length; if(r.errList.length < 30) r.errList.push({seed: g.seed, errors: g.errors.slice(0, 5)}); }
     if(g.reason === 'error'){ r.fatalGames++; r.reasons.error++; }
-    else { r.decided++; r.reasons[g.reason]++; if(g.winner === g.first) r.firstWins++; }
+    else { r.decided++; r.reasons[g.reason]++; if(g.winner === g.first) r.firstWins++;
+      const p1Won = g.winner === 0; if(p1Won) r.p1Wins++;
+      if(g.first === 0){ r.p1FirstGames++; if(p1Won) r.p1FirstWins++; } else { r.p1SecondGames++; if(p1Won) r.p1SecondWins++; } }
     if(o.onProgress && (i % 10 === 9 || i === o.games - 1)) await o.onProgress(i + 1, r);
   }
   r.firstRate = r.decided ? r.firstWins / r.decided : 0;
   r.avgTurns = r.turns / o.games;
+  r.p1Rate = r.decided ? r.p1Wins / r.decided : 0;                       // P1（decks[0]）の勝率＝デッキの勝率
+  r.p1FirstRate = r.p1FirstGames ? r.p1FirstWins / r.p1FirstGames : 0;   // P1が先攻のときの勝率
+  r.p1SecondRate = r.p1SecondGames ? r.p1SecondWins / r.p1SecondGames : 0; // P1が後攻のときの勝率
   return r;
 }
 
@@ -1818,6 +1824,8 @@ function renderSim(){
     out += `
       <div class="metric hl"><span>先攻勝率</span><b>${pct(r.firstRate)}</b></div>
       <div class="metric"><span>　（先攻勝ち／決着試合）</span><b>${r.firstWins} / ${r.decided}</b></div>
+      <div class="metric hl"><span>P1の勝率（P1のデッキの勝率）</span><b>${r.decided ? pct(r.p1Wins / r.decided) : '—'}</b></div>
+      <div class="metric"><span>　P1が先攻のとき／後攻のとき</span><b>${r.p1FirstGames ? pct(r.p1FirstWins / r.p1FirstGames) : '—'} / ${r.p1SecondGames ? pct(r.p1SecondWins / r.p1SecondGames) : '—'}</b></div>
       <div class="metric hl"><span>エラー件数（総数）</span><b>${r.errorsTotal}</b></div>
       <div class="metric"><span>エラーが出た試合／異常終了した試合</span><b>${r.errorGames} / ${r.fatalGames}</b></div>
       <div class="metric"><span>決着内訳 ライフ0／ドロー失敗</span><b>${r.reasons.life} / ${r.reasons.deckout}</b></div>
