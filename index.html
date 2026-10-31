@@ -117,6 +117,38 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 .cf.evolved{border-color:#ffd36b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 0 0 1px #ff9de2,0 0 12px rgba(255,190,120,.55)}
 .cf.evolved .cf-name::before{content:"★";color:#ffd36b;margin-right:2px}
 .evo{color:var(--muted)}.evo b{color:#ffd36b;margin-left:3px;font-size:13px}
+/* ---------- デッキ編集（v1.5） ---------- */
+.dslot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.dslot.sel{border-color:var(--gold)}
+.dslot-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+.dslot-sub{font-size:11px;color:var(--muted);margin:3px 0 2px}
+.dslot .btns{flex-wrap:wrap}.dslot .btns .btn{flex:1 1 auto;padding:9px 8px;font-size:12.5px}
+.okc{color:var(--green);font-size:12px;font-weight:700}.ngc{color:var(--danger);font-size:12px;font-weight:700}
+.dedit{flex:1;display:flex;flex-direction:column;min-height:0}
+.dhead{display:flex;gap:10px;align-items:flex-end;padding:10px 12px 6px;background:var(--panel);border-bottom:1px solid var(--line)}
+.dname{flex:1;min-width:0}.dname label{display:block;font-size:10px;color:var(--muted)}
+.dname input{width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;font-weight:700}
+.dcount{text-align:right;font-size:12px;color:var(--muted);white-space:nowrap}.dcount b{font-size:24px;color:var(--danger)}
+.dcount.full b{color:var(--green)}.dcount small{display:block;font-size:11px}
+.dfilters{padding:6px 10px;background:#0f1320;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.chips{display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chip2{flex:0 0 auto;padding:5px 10px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);font-size:12px;font-weight:700;color:var(--muted)}
+.chip2.on{background:#2c6df0;border-color:#4d8dff;color:#fff}
+.dbody{flex:1;overflow-y:auto;padding:8px 10px 12px}
+.dsum{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px}
+.dsum summary{font-weight:700;cursor:pointer}
+.dlist{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px}
+.dl{font-size:11.5px;white-space:nowrap}.dl .dot{display:inline-block;width:8px;height:8px;margin-right:3px;vertical-align:middle}
+.dcell{display:flex;flex-direction:column;gap:4px}
+.cf.indeck{box-shadow:0 0 0 2px var(--green)}
+.dcnt{position:absolute;right:4px;top:3px;background:var(--green);color:#03170b;font-weight:900;font-size:12px;border-radius:8px;padding:0 6px;z-index:3}
+.dstep{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.dstep button{flex:1;height:30px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);font-size:17px;font-weight:900}
+.dstep button:disabled{opacity:.3}.dstep span{min-width:18px;text-align:center;font-weight:900}
+.dfoot{display:flex;gap:6px;padding:8px 10px;background:#0b0e17;border-top:1px solid var(--line)}
+.dfoot .btn{flex:1;max-width:none;padding:11px 6px;font-size:13px}
+.dwarn{font-size:11px;color:var(--danger);text-align:center;padding:0 10px 8px;background:#0b0e17}
+.deckrow{display:flex;align-items:center;gap:8px}
 /* ---------- card frame ---------- */
 .cf{position:relative;display:flex;flex-direction:column;gap:2px;border-radius:8px;padding:3px;text-align:left;
   background:linear-gradient(170deg,color-mix(in srgb,var(--c) 36%,#1a2030),#10141f 72%);
@@ -322,9 +354,50 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 const DEFS = root.CARDS_SOURCE || JSON.parse(document.getElementById('cards-json').textContent);
 const DEF = {}; DEFS.forEach(d => { DEF[d.id] = d; });
 
-// 8章 初期デッキ（36枚）
-const DECK_LIST = [['R1',3],['R2',2],['R3',2],['R4',2],['R5',1],['B1',3],['B2',2],['B3',2],['B4',1],['B5',1],
-  ['G1',3],['G2',1],['G3',1],['G4',1],['M1',1],['M2',1],['M3',1],['M4',2],['M5',1],['M6',1],['N1',1],['X1',1],['X2',1],['X3',1]];
+// ---------- デッキ（拡張Stage 3／正本v1.5） ----------
+// 初期プリセット4種（各36枚）。「標準」が既定のデッキ（旧・初期デッキを置き換え）
+const PRESETS = [
+  {key: 'std', name: '標準', cards: {R1: 3, R2: 2, R3: 1, R4: 1, R5: 1, R6: 1, B1: 3, B2: 1, B3: 2, B4: 1, B5: 1, B6: 1,
+    G1: 3, G2: 1, G3: 1, G4: 1, G5: 1, M1: 1, M2: 1, M3: 1, M4: 1, M5: 1, M6: 1, M8: 1, N1: 1, X1: 1, X2: 1, X3: 1}},
+  {key: 'red', name: '紅軸', cards: {R1: 3, R2: 3, R3: 3, R4: 3, R5: 2, R6: 3, R7: 2, R8: 2, M1: 3, M7: 3, N1: 3, X1: 3, M4: 3}},
+  {key: 'blue', name: '蒼軸', cards: {B1: 3, B2: 3, B3: 3, B4: 2, B5: 2, B6: 3, B7: 3, B8: 2, M2: 3, M5: 2, M8: 3, N2: 3, X2: 2, M4: 2}},
+  {key: 'green', name: '翠軸', cards: {G1: 3, G2: 3, G3: 2, G4: 3, G5: 3, G6: 3, G7: 2, G8: 2, M3: 3, M6: 3, M9: 3, X3: 3, M4: 3}}
+];
+const DECK_SIZE = 36, SAME_MAX = 3;
+const DECK_LIST = Object.entries(PRESETS[0].cards);   // 既定（標準）
+const deckCount = cards => Object.values(cards || {}).reduce((s, n) => s + n, 0);
+// デッキの検証：36枚ちょうど・同名3枚まで・存在するカードID（属性の制限なし。バーストも通常の枚数に数える）
+function validateDeck(cards){
+  const errs = [];
+  if(!cards || typeof cards !== 'object' || Array.isArray(cards)) return {ok: false, errors: ['デッキの形式が不正'], count: 0};
+  for(const [id, n] of Object.entries(cards)){
+    if(!DEF[id]) errs.push(`存在しないカードID：${id}`);
+    if(!Number.isInteger(n) || n < 0) errs.push(`${id} の枚数が不正`);
+    else if(n > SAME_MAX) errs.push(`${DEF[id] ? DEF[id].name : id} が${SAME_MAX}枚を超えている（${n}枚）`);
+  }
+  const count = Object.values(cards).reduce((s, n) => s + (Number.isInteger(n) && n > 0 ? n : 0), 0);
+  if(count !== DECK_SIZE) errs.push(`${DECK_SIZE}枚ちょうどではない（${count}枚）`);
+  return {ok: !errs.length, errors: errs, count};
+}
+const cleanCards = cards => Object.fromEntries(Object.entries(cards).filter(([, n]) => n > 0));
+const presetSlot = i => ({name: PRESETS[i].name, cards: Object.assign({}, PRESETS[i].cards)});
+function defaultDeckStore(){ return {v: 1, selected: 0, slots: PRESETS.map((_, i) => presetSlot(i))}; }
+// 保存データの読み込み・修復：壊れているスロットだけ、そのスロットの初期プリセットに戻す（他のスロットはそのまま）
+function normalizeDeckStore(raw){
+  const repaired = [];
+  let o = raw;
+  if(typeof raw === 'string'){ try{ o = JSON.parse(raw); }catch(e){ o = null; } }
+  if(!o || typeof o !== 'object' || o.v !== 1 || !Array.isArray(o.slots)) return {store: defaultDeckStore(), repaired: raw == null ? [] : [0, 1, 2, 3], wholeReset: raw != null};
+  const slots = [];
+  for(let i = 0; i < PRESETS.length; i++){
+    const s = o.slots[i];
+    const ok = s && typeof s === 'object' && typeof s.name === 'string' && s.name.trim() && validateDeck(s.cards).ok;
+    if(ok) slots.push({name: s.name.slice(0, 16), cards: cleanCards(s.cards)});
+    else { slots.push(presetSlot(i)); repaired.push(i); }
+  }
+  const sel = Number.isInteger(o.selected) && o.selected >= 0 && o.selected < PRESETS.length ? o.selected : 0;
+  return {store: {v: 1, selected: sel, slots}, repaired, wholeReset: false};
+}
 
 // 仕様に書かれていない箇所の「仮置き」。ここ以外で勝手に決めない。番号は納品時の未決定事項一覧と対応。
 const SETTINGS = {
@@ -932,7 +1005,10 @@ function newGame(o){
   for(let i = 0; i < 2; i++){
     const p = {idx: i, name: o.names ? o.names[i] : 'P' + (i + 1), life: 5, stock: 4, recovery: 0,
       deck: [], hand: [], field: [], area: null, burst: null, trash: [], orbTotal: 9, turnsTaken: 0, evoUsed: 0, evoTurn: 0};
-    for(const [id, n] of DECK_LIST) for(let k = 0; k < n; k++) p.deck.push(mkCard(g, id));
+    const cards = (o.decks && o.decks[i]) || PRESETS[0].cards;
+    const vd = validateDeck(cards); if(!vd.ok) throw new FatalError(`${p.name}のデッキが不正：${vd.errors.join('／')}`);
+    for(const [id, n] of Object.entries(cards)) for(let k = 0; k < n; k++) p.deck.push(mkCard(g, id));
+    p.deckName = (o.deckNames && o.deckNames[i]) || null;
     shuffle(g, p.deck);
     g.players.push(p);
   }
@@ -1200,7 +1276,9 @@ async function runSim(o){
     turns: 0, flash: 0, attacks: 0, aborted: 0, capHits: 0, flashSummons: 0, moves: 0, fx: {},
     burstSets: 0, burstChances: 0, burstFired: 0, burstDeclined: 0, burstNoTarget: 0, x3Summons: 0, burstLeft: 0, burstFiredBy: {}, voidAdded: 0, reasons: {life: 0, deckout: 0, error: 0}, errList: [], plays: {}, flashPlays: {}};
   for(let i = 0; i < o.games; i++){
-    const g = newGame({seed: (o.seed + i) >>> 0, agents: [CPU, CPU], names: ['P1', 'P2'], logLimit: 120});
+    const pick = (d, k) => d == null ? 0 : (d === 'random' ? Math.floor(mulberry32(((o.seed + i) * 7919 + k * 104729) >>> 0)() * PRESETS.length) : d);
+    const di = [pick(o.decks && o.decks[0], 1), pick(o.decks && o.decks[1], 2)];
+    const g = newGame({seed: (o.seed + i) >>> 0, agents: [CPU, CPU], names: ['P1', 'P2'], logLimit: 120, decks: di.map(k => PRESETS[k].cards)});
     await runGame(g);
     r.turns += g.turn; r.flash += g.stats.flashActions; r.attacks += g.stats.attacks; r.aborted += g.stats.aborted; r.capHits += g.stats.capHits;
     for(const [k, v] of Object.entries(g.stats.plays)) r.plays[k] = (r.plays[k] || 0) + v;
@@ -1263,7 +1341,7 @@ function describe(d){
   return L;
 }
 
-root.CA = {DEFS, DEF, DECK_LIST, SETTINGS, CJ, TYPEJ, newGame, runGame, runSim, CPU, checkPlay, paymentFor, reductionOf, symbols,
+root.CA = {DEFS, DEF, DECK_LIST, PRESETS, DECK_SIZE, SAME_MAX, deckCount, validateDeck, cleanCards, presetSlot, defaultDeckStore, normalizeDeckStore, SETTINGS, CJ, TYPEJ, newGame, runGame, runSim, CPU, checkPlay, paymentFor, reductionOf, symbols,
   level, baseBp, bp, findUnit, EVOLVE, checkEvolve, canEvolveAny, activeGuardians, hasKw, KW_INFO, checkSet, burstUsable, hasFlashAction, shouldAskFlash, lethalSpot, levelAt, bpAtLevel, checkFx, surplus, surplusOrbs, describe, effText, unitOrbs, isUnitDef, GameOver, RuleError, FatalError,
   _: {applyEvolve, mkCard, makeUnit, doAttack, flashWindow, applyPlay, applySet, tryBurst, applyFx, applyMove, runTurn, attackStep, mainStep, leaveField, checkInv, drawN, doPay, selfDestructCheck, cpuBlocker}};
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1360,8 +1438,13 @@ function scheduleAnimRender(){ if(animTimer) return; animTimer = setTimeout(() =
 
 async function startBattle(){
   const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+  const slot = UI.decks.slots[UI.decks.selected];
+  if(!CA.validateDeck(slot.cards).ok){ UI.sub = {type: 'deckpick'}; render(); return; }   // 36枚ちょうどでないと対戦できない
+  const cpuIdx = Math.floor(Math.random() * CA.PRESETS.length);                          // CPUは初期の4レシピからランダム
   const g = CA.newGame({seed, agents: [Human, CA.CPU], names: ['あなた', 'CPU'], onUpdate: scheduleRender,
-    delay: m => sleep(m === 'flash' ? 260 : 480), stepHook});
+    delay: m => sleep(m === 'flash' ? 260 : 480), stepHook,
+    decks: [slot.cards, CA.PRESETS[cpuIdx].cards], deckNames: [slot.name, CA.PRESETS[cpuIdx].name]});
+  g.log.splice(0, 0, {t: 0, m: `あなたのデッキ：${slot.name}／CPUのデッキ：${CA.PRESETS[cpuIdx].name}`});
   Object.assign(UI, {g, pending: null, sub: null, screen: 'battle', cpuBanner: null, newCards: new Set(),
     fx: {}, ghosts: [], prevField: {}, prevLife: null, lastBattleId: null});
   render();
@@ -1400,6 +1483,88 @@ async function humanPlay(uid){
   answer({type: 'play', uid, target, payFrom});
 }
 
+// ---------- デッキ（拡張Stage 3）：保存は coreabyss_deck_v1（戦績・設定とは別キー） ----------
+const DECK_KEY = 'coreabyss_deck_v1';
+function loadDecks(){
+  let raw = null;
+  try{ raw = localStorage.getItem(DECK_KEY); }catch(e){}
+  const r = CA.normalizeDeckStore(raw);
+  UI.decks = r.store;
+  UI.deckNotice = r.wholeReset ? '保存データが読めなかったため、4スロットとも初期プリセットに戻しました。'
+    : (r.repaired.length ? `スロット${r.repaired.map(i => i + 1).join('・')}が壊れていたため、初期プリセットに戻しました（他のスロットはそのままです）。` : '');
+  if(r.repaired.length || r.wholeReset) saveDecks();
+}
+function saveDecks(){ try{ localStorage.setItem(DECK_KEY, JSON.stringify(UI.decks)); }catch(e){} }
+const COLOR_ORDER = {red: 0, blue: 1, green: 2, none: 3};
+const TYPE_ORDER = {unit: 0, burst_unit: 1, magic: 2, area: 3, burst: 4};
+const sortDefs = arr => arr.slice().sort((a, b) => (COLOR_ORDER[a.color] - COLOR_ORDER[b.color]) || (TYPE_ORDER[a.type] - TYPE_ORDER[b.type]) || (a.cost - b.cost) || a.id.localeCompare(b.id, 'en', {numeric: true}));
+const FILTERS = {
+  color: [['all', '全属性'], ['red', '紅'], ['blue', '蒼'], ['green', '翠'], ['none', '無']],
+  type: [['all', '全種別'], ['unit', 'ユニット'], ['magic', 'マジック'], ['area', '領域'], ['burst', 'バースト']],
+  cost: [['all', '全コスト'], ['0-2', '0〜2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6+', '6以上']]
+};
+function passFilter(d, f){
+  if(f.color !== 'all' && d.color !== f.color) return false;
+  if(f.type === 'unit' && !CA.isUnitDef(d)) return false;
+  if(f.type === 'burst' && !d.burst) return false;
+  if((f.type === 'magic' || f.type === 'area') && d.type !== f.type) return false;
+  if(f.cost === '0-2' && d.cost > 2) return false;
+  if(f.cost === '6+' && d.cost < 6) return false;
+  if(['3', '4', '5'].includes(f.cost) && d.cost !== +f.cost) return false;
+  return true;
+}
+function renderDecks(){
+  const st = UI.decks;
+  const rows = st.slots.map((s, i) => {
+    const v = CA.validateDeck(s.cards);
+    return `<div class="dslot${st.selected === i ? ' sel' : ''}">
+      <div class="dslot-h"><b>${i + 1}. ${esc(s.name)}</b><span class="${v.ok ? 'okc' : 'ngc'}">${v.count}/${CA.DECK_SIZE}枚${v.ok ? '' : '（対戦不可）'}</span></div>
+      <div class="dslot-sub">初期プリセット：${esc(CA.PRESETS[i].name)}${st.selected === i ? '　<span class="okc">対戦で使う</span>' : ''}</div>
+      <div class="btns"><button class="btn small" data-a="deckEdit" data-i="${i}">編集</button><button class="btn small" data-a="deckUse" data-i="${i}">このデッキを使う</button><button class="btn small" data-a="deckReset" data-i="${i}">初期状態に戻す</button></div>
+    </div>`;
+  }).join('');
+  return `<div class="page"><h2>デッキ編集</h2>
+    <p class="sub">デッキは${CA.DECK_SIZE}枚ちょうど・同名${CA.SAME_MAX}枚まで（属性の制限なし）。スロットは4つです。</p>
+    ${UI.deckNotice ? `<p class="note warn">${esc(UI.deckNotice)}</p>` : ''}
+    ${rows}
+    <div style="margin-top:16px"><button class="btn" data-a="title">タイトルへ</button></div></div>`;
+}
+function renderDeckEdit(){
+  const e = UI.edit, total = CA.deckCount(e.cards), left = CA.DECK_SIZE - total;
+  const v = CA.validateDeck(e.cards);
+  const chips = (k) => `<div class="chips">${FILTERS[k].map(([val, lab]) => `<button class="chip2${e.filter[k] === val ? ' on' : ''}" data-a="deckFilter" data-k="${k}" data-v="${val}">${lab}</button>`).join('')}</div>`;
+  const list = sortDefs(CA.DEFS.filter(d => passFilter(d, e.filter)));
+  const grid = list.map(d => {
+    const n = e.cards[d.id] || 0;
+    return `<div class="dcell">${cardFrame(d, {size: 'list', attrs: ` data-a="deckCard" data-id="${d.id}"`, cls: n ? 'indeck' : '', extra: n ? `<span class="dcnt">×${n}</span>` : ''})}
+      <div class="dstep"><button data-a="deckDec" data-id="${d.id}"${n ? '' : ' disabled'}>−</button><span>${n}</span><button data-a="deckInc" data-id="${d.id}"${n >= CA.SAME_MAX || total >= CA.DECK_SIZE ? ' disabled' : ''}>＋</button></div></div>`;
+  }).join('') || '<p class="note">条件に合うカードがありません</p>';
+  const inDeck = sortDefs(CA.DEFS.filter(d => e.cards[d.id])).map(d => `<span class="dl c-${d.color}"><i class="dot c-${d.color}"></i>${esc(d.name)}×${e.cards[d.id]}</span>`).join('') || '<span class="note">（まだありません）</span>';
+  return `<div class="dedit">
+    <div class="dhead">
+      <div class="dname"><label>スロット${e.slot + 1}の名前</label><input id="deckName" maxlength="16" value="${esc(e.name)}"></div>
+      <div class="dcount ${total === CA.DECK_SIZE ? 'full' : ''}"><b>${total}</b>/${CA.DECK_SIZE}枚<small>残り ${left}枚</small></div>
+    </div>
+    <div class="dfilters">${chips('color')}${chips('type')}${chips('cost')}</div>
+    <div class="dbody">
+      <details class="dsum"><summary>デッキの中身（${total}枚）</summary><div class="dlist">${inDeck}</div></details>
+      <div class="grid dgrid">${grid}</div>
+    </div>
+    <div class="dfoot">
+      <button class="btn small" data-a="deckCancel">やめる</button>
+      <button class="btn small" data-a="deckPreset">初期に戻す</button>
+      <button class="btn small primary" data-a="deckSave"${v.ok && e.name.trim() ? '' : ' disabled'}>保存</button>
+    </div>
+    ${!v.ok ? `<div class="dwarn">${total !== CA.DECK_SIZE ? `${CA.DECK_SIZE}枚ちょうどにすると保存できます` : esc(v.errors[0])}</div>` : ''}
+  </div>`;
+}
+function openDeckEdit(i){
+  const s = UI.decks.slots[i];
+  UI.edit = {slot: i, name: s.name, cards: Object.assign({}, s.cards), base: JSON.stringify(s), filter: {color: 'all', type: 'all', cost: 'all'}};
+  UI.screen = 'deckedit'; UI.sub = null; render();
+}
+const editDirty = () => UI.edit && JSON.stringify({name: UI.edit.name, cards: CA.cleanCards(UI.edit.cards)}) !== UI.edit.base;
+
 // ---------- 描画 ----------
 function render(){
   let h = '';
@@ -1410,6 +1575,8 @@ function render(){
     case 'cards': h = renderCards(); break;
     case 'sim': h = renderSim(); break;
     case 'tutorial': h = renderTutorial(); break;
+    case 'decks': h = renderDecks(); break;
+    case 'deckedit': h = renderDeckEdit(); break;
   }
   h += renderModal();
   $app.classList.toggle('noanim', !!(UI.prefs && !UI.prefs.anim));
@@ -1419,8 +1586,9 @@ function renderTitle(){
   return `<div class="title">
     <div class="logo" data-a="logo"><div class="l1">深淵環</div><div class="l2">オルビア</div><div class="en">SHIN'ENKAN ORBIA</div></div>
     <p class="lead"><span>深淵環の力をめぐり、</span><span>環の継承者どうしが</span><span>オーブとカードで競う対戦ゲーム</span></p>
-    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C＋拡張Stage 1A＋1B＋2（2026-10-31）</p>
+    <p class="ver">版：F3＋バランス変更＋案B＋画面改善C＋拡張Stage 1A＋1B＋2＋3（2026-10-31）</p>
     <button class="btn primary" data-a="start">バトル開始</button>
+    <button class="btn" data-a="decks">デッキ編集</button>
     <button class="btn" data-a="tutorial">遊び方・世界観</button>
     <button class="btn" data-a="cards">カード一覧</button>
     <button class="btn" data-a="stats">戦績</button>
@@ -1673,6 +1841,7 @@ function renderSim(){
     <p class="sub">CPU同士で対戦します。試合iのシード＝開始シード＋i。戦績には記録しません<span class="prov">仮</span></p>
     <label>開始シード<input type="number" id="simSeed" value="${s.seed}"></label>
     <label>試合数<input type="number" id="simGames" value="${s.games}" min="1" max="5000"></label>
+    ${['P1', 'P2'].map((pl, k) => `<label>${pl}のデッキ<select id="simDeck${k}">${CA.PRESETS.map((pr, i) => `<option value="${i}"${(s.decks || [0, 0])[k] == i ? ' selected' : ''}>${pr.name}</option>`).join('')}<option value="random"${(s.decks || [0, 0])[k] === 'random' ? ' selected' : ''}>ランダム</option></select></label>`).join('')}
     <div class="btns"><button class="btn primary" data-a="simrun" ${s.running ? 'disabled' : ''}>実行</button><button class="btn" data-a="title" ${s.running ? 'disabled' : ''}>タイトルへ</button></div>
     <div style="margin-top:14px">${out}</div>
   </div>`;
@@ -1756,6 +1925,16 @@ function renderModal(){
         ${opt(3, '3：負けに直結する場面だけ確認', '防御側でライフ1、このままだとライフに通るときだけ（仮の定義）')}
         <div class="btns"><button class="btn" data-a="close">閉じる</button></div>`);
     }
+    if(s.type === 'deckpick'){
+      const rows = UI.decks.slots.map((sl, i) => { const v = CA.validateDeck(sl.cards);
+        return v.ok ? `<button class="row${UI.decks.selected === i ? ' ok' : ''}" data-a="deckGo" data-i="${i}"><span class="nm">${i + 1}. ${esc(sl.name)}<small>${v.count}枚</small></span><span class="tag">このデッキで対戦</span></button>`
+                    : `<div class="row ng"><span class="nm">${i + 1}. ${esc(sl.name)}</span><span class="rs">${v.count}枚：${CA.DECK_SIZE}枚ちょうどでないため対戦できません</span></div>`; }).join('');
+      return sheet(`<h3>使うデッキを選ぶ</h3><p class="note">CPUは4つの初期プリセットから、ランダムに1つを使います。</p>${rows}
+        <div class="btns"><button class="btn" data-a="decks">デッキを編集する</button><button class="btn" data-a="close">やめる</button></div>`);
+    }
+    if(s.type === 'deckConfirm'){
+      return sheet(`<h3>${esc(s.title)}</h3><p class="note">${esc(s.note)}</p><div class="btns"><button class="btn" data-a="close">やめる</button><button class="btn primary" data-a="deckConfirmOk">${esc(s.ok)}</button></div>`);
+    }
     if(s.type === 'stats'){
       const v = loadSave();
       return sheet(`<h3>戦績</h3><dl class="kv"><dt>総勝利数</dt><dd>${v.totalWins}</dd><dt>総対戦数</dt><dd>${v.totalGames}</dd><dt>最大連勝</dt><dd>${v.maxStreak}</dd><dt>現在の連勝</dt><dd>${v.streak}</dd></dl><div class="btns"><button class="btn" data-a="close">閉じる</button></div>`);
@@ -1815,7 +1994,25 @@ function sheet(inner, full, id){ return `<div class="ov" data-a="ovbg"><div clas
 
 // ---------- 操作 ----------
 const H = {
-  start(){ startBattle(); },
+  start(){ UI.sub = {type: 'deckpick'}; render(); },
+  deckGo(el){ UI.decks.selected = +el.dataset.i; saveDecks(); UI.sub = null; startBattle(); },
+  decks(){ UI.screen = 'decks'; UI.sub = null; render(); },
+  deckUse(el){ UI.decks.selected = +el.dataset.i; saveDecks(); render(); },
+  deckEdit(el){ openDeckEdit(+el.dataset.i); },
+  deckReset(el){ const i = +el.dataset.i; UI.sub = {type: 'deckConfirm', title: `スロット${i + 1}を初期状態に戻す`, note: `名前と中身を、初期プリセット「${CA.PRESETS[i].name}」に戻して保存します。`, ok: '初期状態に戻す',
+    run: () => { UI.decks.slots[i] = CA.presetSlot(i); saveDecks(); UI.deckNotice = ''; }}; render(); },
+  deckConfirmOk(){ const s = UI.sub; UI.sub = null; if(s && s.run) s.run(); render(); },
+  deckFilter(el){ UI.edit.filter[el.dataset.k] = el.dataset.v; render(); },
+  deckInc(el){ const e = UI.edit, id = el.dataset.id, n = e.cards[id] || 0;
+    if(n >= CA.SAME_MAX || CA.deckCount(e.cards) >= CA.DECK_SIZE) return;   // 同名3枚・36枚を超える操作はできない
+    e.cards[id] = n + 1; render(); },
+  deckDec(el){ const e = UI.edit, id = el.dataset.id; if(e.cards[id] > 0){ e.cards[id]--; if(!e.cards[id]) delete e.cards[id]; render(); } },
+  deckCard(el){ UI.sub = {type: 'detail', html: cardDetail(CA.DEF[el.dataset.id])}; render(); },
+  deckPreset(){ const e = UI.edit; e.cards = Object.assign({}, CA.PRESETS[e.slot].cards); e.name = CA.PRESETS[e.slot].name; render(); },
+  deckSave(){ const e = UI.edit; if(!CA.validateDeck(e.cards).ok || !e.name.trim()) return;
+    UI.decks.slots[e.slot] = {name: e.name.trim().slice(0, 16), cards: CA.cleanCards(e.cards)}; saveDecks(); UI.deckNotice = ''; UI.edit = null; UI.screen = 'decks'; render(); },
+  deckCancel(){ if(editDirty()){ UI.sub = {type: 'deckConfirm', title: '編集をやめる', note: '保存していない変更は消えます。', ok: '変更を捨てる', run: () => { UI.edit = null; UI.screen = 'decks'; }}; render(); }
+    else { UI.edit = null; UI.screen = 'decks'; render(); } },
   title(){ UI.screen = 'title'; UI.sub = null; UI.g = null; UI.pending = null; UI.cpuBanner = null; render(); },
   cards(){ UI.screen = 'cards'; render(); },
   stats(){ UI.sub = {type: 'stats'}; render(); },
@@ -1926,7 +2123,7 @@ const H = {
   tgtE(el){ if(UI.pending && UI.pending.kind === 'target') answer(+el.dataset.uid); },
   cancel(){ const s = UI.sub; UI.sub = null; if(s && s.res) s.res(null); render(); },
   close(){ UI.sub = null; render(); },
-  ovbg(el, e){ if(e.target === el && UI.sub && ['detail', 'log', 'stats', 'trash'].includes(UI.sub.type)){ UI.sub = null; render(); } },
+  ovbg(el, e){ if(e.target === el && UI.sub && ['detail', 'log', 'stats', 'trash', 'deckpick'].includes(UI.sub.type)){ UI.sub = null; render(); } },
   log(){ if(UI.g){ UI.sub = {type: 'log'}; render(); const el = document.getElementById('logsheet'); if(el) el.scrollTop = el.scrollHeight; } },
   payInc(el){ const s = UI.sub, me = UI.g.players[0], u = me.field.find(x => x.uid === +el.dataset.uid); if(!s || !u) return;
     const sum = Object.values(s.alloc).reduce((a, b) => a + b, 0); const n = s.alloc[u.uid] || 0;
@@ -1939,15 +2136,21 @@ const H = {
     s.games = Math.max(1, Math.min(5000, parseInt(document.getElementById('simGames').value, 10) || 100));
     s.running = true; s.done = 0; s.res = null; render();
     try{
-      s.res = await CA.runSim({seed: s.seed, games: s.games, onProgress: async (n) => { s.done = n; render(); await sleep(0); }});
+      s.decks = [0, 1].map(k => { const v = document.getElementById('simDeck' + k).value; return v === 'random' ? 'random' : +v; });
+      s.res = await CA.runSim({seed: s.seed, games: s.games, decks: s.decks, onProgress: async (n) => { s.done = n; render(); await sleep(0); }});
     } finally { s.running = false; render(); }
   }
 };
+$app.addEventListener('input', e => {
+  if(e.target.id === 'deckName' && UI.edit){ UI.edit.name = e.target.value;
+    const b = document.querySelector('[data-a=deckSave]'); if(b) b.disabled = !(CA.validateDeck(UI.edit.cards).ok && UI.edit.name.trim()); }
+});
 $app.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if(!el) return;
   const fn = H[el.dataset.a]; if(fn) fn(el, e);
 });
 UI.prefs = loadPrefs();
+loadDecks();
 UI.autoPass = [1, 2, 3].includes(loadSave().autoPass) ? loadSave().autoPass : 2;
 preloadImages();
 if(location.hash === '#sim') UI.screen = 'sim';
